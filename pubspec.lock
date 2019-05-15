@@ -60,6 +60,15 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  lottie_flutter:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "45049ab6dc1143c38fb4dc2d8d21965145d340d2"
+      url: "git://github.com/dnfield/lottie-flutter.git"
+    source: git
+    version: "0.3.0"
   matcher:
     dependency: transitive
     description:
@@ -81,6 +90,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.6.2"
+  path_drawing:
+    dependency: transitive
+    description:
+      name: path_drawing
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.1"
+  path_parsing:
+    dependency: transitive
+    description:
+      name: path_parsing
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.4"
   pedantic:
     dependency: transitive
     description:
@@ -172,3 +195,4 @@ packages:
     version: "2.0.8"
 sdks:
   dart: ">=2.2.3 <3.0.0"
+  flutter: ">=0.7.3 <2.0.0"

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +12,10 @@ import 'bloc/navigation_bloc.dart';
 StreamController<NavigationEvent> navigationStream =
     StreamController<NavigationEvent>();
 
-void main() => runApp(MyApp());
+void main() {
+//  timeDilation = 2.0;
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -21,9 +25,15 @@ class MyApp extends StatelessWidget {
       blocProviders: [],
       child: CupertinoApp(
         title: 'Flutter Demo',
-        initialRoute: '/',
+        initialRoute: '/loading',
         onGenerateRoute: (RouteSettings route) {
           switch (route.name) {
+            case '/loading':
+              return CupertinoPageRoute(
+                builder: (context) {
+                  return SplashScreen();
+                },
+              );
             case '/':
               return CupertinoPageRoute(
                 builder: (context) {

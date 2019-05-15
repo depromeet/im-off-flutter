@@ -19,8 +19,7 @@ class ChartIndicator extends StatelessWidget {
 
   List<Widget> _buildTimeSector() {
     final DateTime date = DateTime.now();
-    final DateTime next = date.add(Duration(minutes: 282));
-    final Duration gap = next.difference(date);
+    final Duration gap = Duration(minutes: 282);
     final int startMin = date.hour * 60 + date.minute;
     final int gapMin = gap.inMinutes;
     final int startAngle = (startMin / 2).floor();

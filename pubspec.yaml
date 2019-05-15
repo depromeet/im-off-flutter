@@ -25,6 +25,9 @@ dependencies:
   cupertino_icons: ^0.1.2
   provider: any
   flutter_bloc: ^0.13.0
+  lottie_flutter:
+    git:
+      url: git://github.com/dnfield/lottie-flutter.git
 
 dev_dependencies:
   flutter_test:
@@ -48,7 +51,7 @@ flutter:
   #  - images/a_dot_ham.jpeg
   assets:
     - images/
-
+    - assets/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

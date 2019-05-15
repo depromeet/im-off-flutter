@@ -106,7 +106,17 @@ class SettingSelector extends StatelessWidget {
         color: Color(0xfff3f3f3),
       ),
       child: CupertinoButton(
-        onPressed: () {},
+        onPressed: () {
+          showCupertinoDialog(
+            context: context,
+            builder: (context) {
+              return CupertinoDatePicker(
+                onDateTimeChanged: (date) {},
+                mode: CupertinoDatePickerMode.time,
+              );
+            },
+          );
+        },
         padding: EdgeInsets.symmetric(
           horizontal: 14.0,
           vertical: 8.0,
