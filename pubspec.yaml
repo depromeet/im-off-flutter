@@ -25,6 +25,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   provider: any
   flutter_bloc: ^0.13.0
+  shared_preferences: ^0.5.2
   lottie_flutter:
     git:
       url: git://github.com/dnfield/lottie-flutter.git

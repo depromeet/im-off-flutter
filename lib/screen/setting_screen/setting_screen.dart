@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:im_off/bloc/setting_bloc.dart';
+import 'package:im_off/model/user_setting.dart';
 import 'package:im_off/screen/setting_screen/common.dart';
 import 'package:im_off/screen/setting_screen/notification_switch.dart';
 
@@ -25,8 +28,15 @@ class SettingScreen extends StatelessWidget {
 class SettingDone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    SettingBloc _settingBloc = BlocProvider.of<SettingBloc>(context);
     return GestureDetector(
       onTap: () {
+        _settingBloc.dispatch(
+          SettingEvent(
+            action: SettingAction.setSettings,
+            settings: UserSetting(),
+          ),
+        );
         Navigator.of(context).pop();
       },
       child: Container(
