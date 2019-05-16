@@ -22,7 +22,6 @@ class IamOff extends StatelessWidget {
   static final SettingBloc _settingBloc = SettingBloc();
   @override
   Widget build(BuildContext context) {
-    print("hihihi");
     return BlocProviderTree(
       blocProviders: [
         BlocProvider<SettingBloc>(bloc: _settingBloc),

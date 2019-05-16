@@ -1,7 +1,45 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:math' as math;
 
-class ChartIndicator extends StatelessWidget {
+import 'package:im_off/bloc/setting_bloc.dart';
+
+class ChartIndicator extends StatefulWidget {
+  @override
+  _ChartIndicatorState createState() => _ChartIndicatorState();
+}
+
+class _ChartIndicatorState extends State<ChartIndicator>
+    with SingleTickerProviderStateMixin {
+  AnimationController _animationController;
+  Animation<double> _chartSize;
+  SettingBloc _settingBloc;
+
+  @override
+  void initState() {
+    super.initState();
+
+    this._settingBloc = BlocProvider.of<SettingBloc>(context);
+
+    this._animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1000),
+      lowerBound: 0.0,
+      upperBound: 1.0,
+    );
+    this._animationController.addListener(() => setState(() {}));
+    _chartSize = CurveTween(
+      curve: Curves.easeOutQuart,
+    ).animate(this._animationController);
+    this._animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    this._animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -19,14 +57,13 @@ class ChartIndicator extends StatelessWidget {
 
   List<Widget> _buildTimeSector() {
     final DateTime date = DateTime.now();
-    final int gapMin = Duration(minutes: 282).inMinutes;
+    final int gapMin = Duration(minutes: 682).inMinutes;
     final int startMin = (date.hour * 60 + date.minute) % 720;
-    print("current time: $startMin");
     return [
       CustomPaint(
         painter: ChartClock(
           color: CupertinoColors.white,
-          gapMin: gapMin,
+          gapMin: gapMin * this._chartSize.value,
           startMin: startMin,
         ),
       ),
@@ -35,7 +72,7 @@ class ChartIndicator extends StatelessWidget {
         child: CustomPaint(
           painter: ChartClock(
             color: Color(0xff25f2ff),
-            gapMin: gapMin,
+            gapMin: gapMin * this._chartSize.value,
             startMin: startMin,
           ),
         ),
@@ -47,7 +84,7 @@ class ChartIndicator extends StatelessWidget {
 class ChartClock extends CustomPainter {
   final Color color;
   final int startMin;
-  final int gapMin;
+  final double gapMin;
 
   ChartClock({
     this.color,
