@@ -19,17 +19,15 @@ class ChartIndicator extends StatelessWidget {
 
   List<Widget> _buildTimeSector() {
     final DateTime date = DateTime.now();
-    final Duration gap = Duration(minutes: 282);
-    final int startMin = date.hour * 60 + date.minute;
-    final int gapMin = gap.inMinutes;
-    final int startAngle = (startMin / 2).floor();
-    final int gapAngle = (gapMin / 2).floor();
+    final int gapMin = Duration(minutes: 282).inMinutes;
+    final int startMin = (date.hour * 60 + date.minute) % 720;
+    print("current time: $startMin");
     return [
       CustomPaint(
         painter: ChartClock(
           color: CupertinoColors.white,
-          angleGap: gapAngle,
-          startAngle: startAngle,
+          gapMin: gapMin,
+          startMin: startMin,
         ),
       ),
       Padding(
@@ -37,8 +35,8 @@ class ChartIndicator extends StatelessWidget {
         child: CustomPaint(
           painter: ChartClock(
             color: Color(0xff25f2ff),
-            angleGap: gapAngle,
-            startAngle: startAngle,
+            gapMin: gapMin,
+            startMin: startMin,
           ),
         ),
       ),
@@ -48,33 +46,32 @@ class ChartIndicator extends StatelessWidget {
 
 class ChartClock extends CustomPainter {
   final Color color;
-  final int startAngle;
-  final int angleGap;
+  final int startMin;
+  final int gapMin;
 
   ChartClock({
     this.color,
-    this.startAngle,
-    this.angleGap,
+    this.startMin,
+    this.gapMin,
   });
   @override
   void paint(Canvas canvas, Size size) {
     Offset center = size.center(Offset(0, 0));
+    double start = 2 * math.pi * ((this.startMin - 180) / 720.0);
+    double gap = 2 * math.pi * (this.gapMin / 720.0);
+
     Rect rect = Rect.fromCircle(
       center: center,
       radius: size.height / 2.0,
     );
-    Path path = Path()
-      ..moveTo(center.dx, center.dy)
-      ..arcTo(rect, math.pi / (startAngle / 180.0),
-          math.pi * (angleGap / 180.0), false);
-    canvas.drawPath(path, Paint()..color = color);
+    canvas.drawArc(rect, start, gap, true, Paint()..color = color);
   }
 
   @override
   bool shouldRepaint(ChartClock oldDelegate) {
     if (color != oldDelegate.color ||
-        startAngle != oldDelegate.startAngle ||
-        angleGap != oldDelegate.angleGap)
+        startMin != oldDelegate.startMin ||
+        gapMin != oldDelegate.gapMin)
       return true;
     else
       return false;
