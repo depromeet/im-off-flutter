@@ -11,16 +11,3 @@ List<String> minutes = List.generate(
   60,
   (i) => (i < 10) ? "0$i" : i.toString(),
 );
-
-List<ItemList> timeItemList = [
-  ItemList(
-    items: pmAm,
-    listTitle: '오전 오후',
-  ),
-  ItemList(
-    items: hours,
-  ),
-  ItemList(
-    items: minutes,
-  ),
-];

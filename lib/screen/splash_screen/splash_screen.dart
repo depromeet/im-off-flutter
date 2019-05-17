@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:im_off/bloc/setting_bloc.dart';
+import 'package:im_off/model/user_setting.dart';
 import 'package:im_off/screen/routes.dart';
 import 'package:lottie_flutter/lottie_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -49,6 +50,7 @@ class _SplashScreenState extends State<SplashScreen>
     return BlocListener(
       bloc: _settingBloc,
       listener: (context, SettingData data) {
+        UserSetting setting = data.settings;
         switch (data.status) {
           case SettingStatus.isNotInitialized:
             return Navigator.of(context).pushNamed(IamOffRoute.settings);

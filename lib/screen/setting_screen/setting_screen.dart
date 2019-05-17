@@ -85,12 +85,31 @@ class SettingMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SettingBloc _settingBloc = BlocProvider.of<SettingBloc>(context);
-    UserSetting _userSetting = _settingBloc.currentState.settings;
 
     return BlocBuilder(
       bloc: _settingBloc,
       builder: (context, SettingData data) {
-        int jobNum = data.settings.jobNum;
+        UserSetting _userSetting = data.settings;
+        int jobNum = _userSetting.jobNum;
+        int startMinutes = _userSetting.startMinute;
+        int endMinutes = _userSetting.endMinute;
+        if (startMinutes != null) {}
+
+        if (endMinutes != null) {}
+
+        List<ItemList> timeItemList = [
+          ItemList(
+            items: pmAm,
+            listTitle: '오전 오후',
+          ),
+          ItemList(
+            items: hours,
+          ),
+          ItemList(
+            items: minutes,
+          ),
+        ];
+
         return Container(
           padding: EdgeInsets.symmetric(
             vertical: 28.0,
@@ -103,7 +122,9 @@ class SettingMain extends StatelessWidget {
               JalnanTitle(title: '출퇴근 시간을 설정해주세요.', size: 16.0),
               SizedBox(height: 16.0),
               SettingSelector(
-                title: '출근 시간',
+                title: startMinutes == null
+                    ? '출근 시간'
+                    : minutesToString(startMinutes),
                 itemFields: timeItemList,
                 onSelected: (List<Item> result) {
                   if (result != null) {
@@ -119,7 +140,8 @@ class SettingMain extends StatelessWidget {
               ),
               SizedBox(height: 6.0),
               SettingSelector(
-                title: '퇴근 시간',
+                title:
+                    endMinutes == null ? '퇴근 시간' : minutesToString(endMinutes),
                 itemFields: timeItemList,
                 onSelected: (List<Item> result) {
                   if (result != null) {
@@ -179,14 +201,23 @@ class SettingMain extends StatelessWidget {
   int _timeInMinutes(List<Item> times) {
     int timeInMinutes = 0;
     if (times[0].value == pmAm[1]) timeInMinutes = 60 * 12;
-    if (times[1].value != 12) timeInMinutes += int.parse(times[1].value) * 60;
+    if (times[1].value != 12.toString())
+      timeInMinutes += int.parse(times[1].value) * 60;
 
     timeInMinutes += int.parse(times[2].value);
     return timeInMinutes;
   }
 
-  String minutesToString(int minutes) {
-    String amPm = minutes >= 720 ? "오후" : "오전";
+  String minutesToString(int timeInMinutes) {
+    String amPm = timeInMinutes >= 720 ? "오후" : "오전";
+    int hours = ((timeInMinutes % 720) ~/ 60);
+    if (hours == 0 && timeInMinutes >= 720) hours = 12;
+
+    int minutes = (timeInMinutes % 60);
+    String sHours = hours < 10 ? "0$hours" : "$hours";
+    String sMinutes = minutes < 10 ? "0$minutes" : "$minutes";
+
+    return "$amPm $sHours:$sMinutes";
   }
 }
 
