@@ -57,6 +57,7 @@ class _SplashScreenState extends State<SplashScreen>
           case SettingStatus.isInitialized:
             return Navigator.of(context).pushReplacementNamed(IamOffRoute.home);
           default:
+            // TODO: settings의 데이터 중에 null인 데이터 있는지 확인해야함.
             break;
         }
       },
