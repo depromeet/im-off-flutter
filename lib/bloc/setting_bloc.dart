@@ -46,10 +46,11 @@ const initializedKey = 'initialized';
 const settingsKey = 'settings';
 
 class SettingBloc extends Bloc<SettingEvent, SettingData> {
-  SharedPreferences prefs;
-
   @override
-  SettingData get initialState => SettingData(status: SettingStatus.appLoaded);
+  SettingData get initialState => SettingData(
+        status: SettingStatus.appLoaded,
+        settings: UserSetting(),
+      );
 
   @override
   Stream<SettingData> mapEventToState(SettingEvent event) async* {

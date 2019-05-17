@@ -1,12 +1,12 @@
 class UserSetting {
-  final int jobNum;
-  final int startMinute;
-  final int endMinute;
-  final bool isAlarmSet;
+  int jobNum;
+  int startMinute;
+  int endMinute;
+  bool isAlarmSet;
 
   UserSetting({
     this.endMinute,
-    this.isAlarmSet,
+    this.isAlarmSet = false,
     this.jobNum,
     this.startMinute,
   });

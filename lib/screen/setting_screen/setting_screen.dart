@@ -31,16 +31,31 @@ class SettingScreen extends StatelessWidget {
 class SettingDone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    SettingBloc _settingBloc = BlocProvider.of<SettingBloc>(context);
     return GestureDetector(
       onTap: () {
-        _settingBloc.dispatch(
-          SettingEvent(
-            action: SettingAction.setSettings,
-            settings: UserSetting(),
-          ),
-        );
-        Navigator.of(context).pop();
+        UserSetting setting =
+            BlocProvider.of<SettingBloc>(context).userSettings;
+        if (setting.jobNum == null ||
+            setting.startMinute == null ||
+            setting.endMinute == null) {
+          showCupertinoDialog(
+            context: context,
+            builder: (context) {
+              return CupertinoAlertDialog(
+                title: Text("모든 설정을 완료해 주세요"),
+                actions: <Widget>[
+                  CupertinoDialogAction(
+                    child: Text("확인"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        } else
+          Navigator.of(context).pop();
       },
       child: Container(
         decoration: ShapeDecoration(
@@ -69,6 +84,9 @@ class SettingDone extends StatelessWidget {
 class SettingMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    SettingBloc _settingBloc = BlocProvider.of<SettingBloc>(context);
+    UserSetting _userSetting = _settingBloc.currentState.settings;
+
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: 28.0,
@@ -84,7 +102,15 @@ class SettingMain extends StatelessWidget {
             title: '출근 시간',
             itemFields: timeItemList,
             onSelected: (List<Item> result) {
-              print(result);
+              if (result != null) {
+                int time = _timeInMinutes(result);
+                _settingBloc.dispatch(
+                  SettingEvent(
+                    settings: _userSetting.copWith(startMinute: time),
+                    action: SettingAction.setSettings,
+                  ),
+                );
+              }
             },
           ),
           SizedBox(height: 6.0),
@@ -92,7 +118,15 @@ class SettingMain extends StatelessWidget {
             title: '퇴근 시간',
             itemFields: timeItemList,
             onSelected: (List<Item> result) {
-              print(result);
+              if (result != null) {
+                int time = _timeInMinutes(result);
+                _settingBloc.dispatch(
+                  SettingEvent(
+                    settings: _userSetting.copWith(endMinute: time),
+                    action: SettingAction.setSettings,
+                  ),
+                );
+              }
             },
           ),
           SizedBox(height: 50.0),
@@ -107,7 +141,14 @@ class SettingMain extends StatelessWidget {
               ),
             ],
             onSelected: (List<Item> result) {
-              print(result);
+              if (result != null) {
+                _settingBloc.dispatch(
+                  SettingEvent(
+                    settings: _userSetting.copWith(jobNum: result[0].index),
+                    action: SettingAction.setSettings,
+                  ),
+                );
+              }
             },
           ),
           SizedBox(height: 50.0),
@@ -126,6 +167,15 @@ class SettingMain extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  int _timeInMinutes(List<Item> times) {
+    int timeInMinutes = 0;
+    if (times[0].value == pmAm[1]) timeInMinutes = 60 * 12;
+    if (times[1].value != 12) timeInMinutes += int.parse(times[1].value) * 60;
+
+    timeInMinutes += int.parse(times[2].value);
+    return timeInMinutes;
   }
 }
 
@@ -148,7 +198,7 @@ class SettingSelector extends StatelessWidget {
       ),
       child: CupertinoButton(
         onPressed: () async {
-          var result = await showCupertinoModalPopup(
+          var result = await showCupertinoDialog(
             context: context,
             builder: (context) {
               return CustomPicker(
