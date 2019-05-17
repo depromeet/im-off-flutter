@@ -59,8 +59,9 @@ class _CustomPickerState extends State<CustomPicker> {
   Widget build(BuildContext context) {
     List<FixedExtentScrollController> controllers = [];
     for (int i = 0; i < this.widget.fields.length; i++) {
+      int init = widget.fields[i].initialItemIndex ?? 0;
       controllers.add(FixedExtentScrollController(
-        initialItem: widget.fields[i].initialItemIndex ?? 0,
+        initialItem: init,
       ));
     }
     return Center(
@@ -232,7 +233,6 @@ class MultipleItemSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int selectedItem = 0;
     return Row(
       children: <Widget>[
         ...this
@@ -242,6 +242,7 @@ class MultipleItemSelector extends StatelessWidget {
               // Start of the real widget
               FixedExtentScrollController controller =
                   controllers[controlIndex];
+              int selectedItem = controller.initialItem;
               this.onItemSelected(
                 controlIndex,
                 Item(

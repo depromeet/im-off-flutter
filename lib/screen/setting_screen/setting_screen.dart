@@ -87,85 +87,92 @@ class SettingMain extends StatelessWidget {
     SettingBloc _settingBloc = BlocProvider.of<SettingBloc>(context);
     UserSetting _userSetting = _settingBloc.currentState.settings;
 
-    return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: 28.0,
-        horizontal: 30.0,
-      ),
-      child: ListView(
-        physics: ClampingScrollPhysics(),
-        children: <Widget>[
-          SizedBox(height: 12.0),
-          JalnanTitle(title: '출퇴근 시간을 설정해주세요.', size: 16.0),
-          SizedBox(height: 16.0),
-          SettingSelector(
-            title: '출근 시간',
-            itemFields: timeItemList,
-            onSelected: (List<Item> result) {
-              if (result != null) {
-                int time = _timeInMinutes(result);
-                _settingBloc.dispatch(
-                  SettingEvent(
-                    settings: _userSetting.copWith(startMinute: time),
-                    action: SettingAction.setSettings,
-                  ),
-                );
-              }
-            },
+    return BlocBuilder(
+      bloc: _settingBloc,
+      builder: (context, SettingData data) {
+        int jobNum = data.settings.jobNum;
+        return Container(
+          padding: EdgeInsets.symmetric(
+            vertical: 28.0,
+            horizontal: 30.0,
           ),
-          SizedBox(height: 6.0),
-          SettingSelector(
-            title: '퇴근 시간',
-            itemFields: timeItemList,
-            onSelected: (List<Item> result) {
-              if (result != null) {
-                int time = _timeInMinutes(result);
-                _settingBloc.dispatch(
-                  SettingEvent(
-                    settings: _userSetting.copWith(endMinute: time),
-                    action: SettingAction.setSettings,
+          child: ListView(
+            physics: ClampingScrollPhysics(),
+            children: <Widget>[
+              SizedBox(height: 12.0),
+              JalnanTitle(title: '출퇴근 시간을 설정해주세요.', size: 16.0),
+              SizedBox(height: 16.0),
+              SettingSelector(
+                title: '출근 시간',
+                itemFields: timeItemList,
+                onSelected: (List<Item> result) {
+                  if (result != null) {
+                    int time = _timeInMinutes(result);
+                    _settingBloc.dispatch(
+                      SettingEvent(
+                        settings: _userSetting.copWith(startMinute: time),
+                        action: SettingAction.setSettings,
+                      ),
+                    );
+                  }
+                },
+              ),
+              SizedBox(height: 6.0),
+              SettingSelector(
+                title: '퇴근 시간',
+                itemFields: timeItemList,
+                onSelected: (List<Item> result) {
+                  if (result != null) {
+                    int time = _timeInMinutes(result);
+                    _settingBloc.dispatch(
+                      SettingEvent(
+                        settings: _userSetting.copWith(endMinute: time),
+                        action: SettingAction.setSettings,
+                      ),
+                    );
+                  }
+                },
+              ),
+              SizedBox(height: 50.0),
+              JalnanTitle(title: '직군을 선택해주세요.', size: 16.0),
+              SizedBox(height: 16.0),
+              SettingSelector(
+                title: jobNum == null ? '나의 직군' : jobs[jobNum].toString(),
+                itemFields: [
+                  ItemList(
+                    items: jobs,
+                    listTitle: 'jobs',
+                    initialItemIndex: jobNum ?? 0,
                   ),
-                );
-              }
-            },
-          ),
-          SizedBox(height: 50.0),
-          JalnanTitle(title: '직군을 선택해주세요.', size: 16.0),
-          SizedBox(height: 16.0),
-          SettingSelector(
-            title: '나의 직군',
-            itemFields: [
-              const ItemList(
-                items: jobs,
-                listTitle: 'jobs',
+                ],
+                onSelected: (List<Item> result) {
+                  if (result != null) {
+                    _settingBloc.dispatch(
+                      SettingEvent(
+                        settings: _userSetting.copWith(jobNum: result[0].index),
+                        action: SettingAction.setSettings,
+                      ),
+                    );
+                  }
+                },
+              ),
+              SizedBox(height: 50.0),
+              NotificationSwitch(),
+              SizedBox(height: 10.0),
+              Text(
+                "퇴근시간 후 30분 간격의 퇴근확인\n푸시알림이 발생합니다.",
+                style: const TextStyle(
+                  color: const Color(0xff191919),
+                  fontWeight: FontWeight.w300,
+                  fontFamily: "SpoqaHanSans",
+                  fontStyle: FontStyle.normal,
+                  fontSize: 16.0,
+                ),
               ),
             ],
-            onSelected: (List<Item> result) {
-              if (result != null) {
-                _settingBloc.dispatch(
-                  SettingEvent(
-                    settings: _userSetting.copWith(jobNum: result[0].index),
-                    action: SettingAction.setSettings,
-                  ),
-                );
-              }
-            },
           ),
-          SizedBox(height: 50.0),
-          NotificationSwitch(),
-          SizedBox(height: 10.0),
-          Text(
-            "퇴근시간 후 30분 간격의 퇴근확인\n푸시알림이 발생합니다.",
-            style: const TextStyle(
-              color: const Color(0xff191919),
-              fontWeight: FontWeight.w300,
-              fontFamily: "SpoqaHanSans",
-              fontStyle: FontStyle.normal,
-              fontSize: 16.0,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -177,17 +184,23 @@ class SettingMain extends StatelessWidget {
     timeInMinutes += int.parse(times[2].value);
     return timeInMinutes;
   }
+
+  String minutesToString(int minutes) {
+    String amPm = minutes >= 720 ? "오후" : "오전";
+  }
 }
 
 class SettingSelector extends StatelessWidget {
   final String title;
   final List<ItemList> itemFields;
   final Function onSelected;
+  final int initialItem;
 
   SettingSelector({
     this.title,
     @required this.itemFields,
     this.onSelected,
+    this.initialItem = 0,
   });
   @override
   Widget build(BuildContext context) {
