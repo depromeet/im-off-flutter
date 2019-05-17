@@ -62,8 +62,57 @@ class CustomPicker extends StatelessWidget {
                 selectedTextStyle: selectedTextStyle,
                 unselectedTextStyle: unselectedTextStyle,
                 controllers: controllers),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              child: Container(
+                height: 24.0 * 3,
+                color: Color(0xfff3f3f3),
+                width: width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Spacer(),
+                    CupertinoButton(
+                      onPressed: () {},
+                      child: ButtonText(
+                        title: '취소',
+                        isDestructive: true,
+                      ),
+                    ),
+                    CupertinoButton(
+                      onPressed: () {},
+                      child: ButtonText(
+                        title: '확인',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ButtonText extends StatelessWidget {
+  final String title;
+  final bool isDestructive;
+
+  ButtonText({this.title, this.isDestructive = false});
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      this.title,
+      style: TextStyle(
+        color: this.isDestructive ? const Color(0xff191919) : Color(0xff3a2eff),
+        fontWeight: FontWeight.w400,
+        fontFamily: "SpoqaHanSans",
+        fontStyle: FontStyle.normal,
+        fontSize: 16.0,
       ),
     );
   }
@@ -139,9 +188,7 @@ class MultipleItemSelector extends StatelessWidget {
                     width: this.width / this.fields.length,
                     child: ListWheelScrollView.useDelegate(
                       controller: controller,
-                      physics: FixedExtentScrollPhysics(
-                        parent: ClampingScrollPhysics(),
-                      ),
+                      physics: FixedExtentScrollPhysics(),
                       diameterRatio: 50.0,
                       itemExtent: 46.0,
                       onSelectedItemChanged: (index) {

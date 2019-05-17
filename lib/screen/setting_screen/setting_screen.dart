@@ -142,6 +142,7 @@ class SettingSelector extends StatelessWidget {
             builder: (context) {
               return CustomPicker(
                 fields: this.itemFields,
+                height: this.itemFields.length == 1 ? 372 : 279,
               );
             },
           );
