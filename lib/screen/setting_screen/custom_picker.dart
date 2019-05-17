@@ -2,9 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+/// Currently this package supports horizontal view only.
 enum FieldDirection { vertical, horizontal }
 
-class CustomPicker extends StatelessWidget {
+/// CustomPicker for im_off app
+/// This returns List<Item> for selected items or null.
+class CustomPicker extends StatefulWidget {
   final FieldDirection direction;
   final List<ItemList> fields;
   final bool showFieldName;
@@ -38,15 +41,32 @@ class CustomPicker extends StatelessWidget {
   });
 
   @override
+  _CustomPickerState createState() => _CustomPickerState();
+}
+
+typedef OnItemSelectFunction = Function(int, dynamic);
+
+class _CustomPickerState extends State<CustomPicker> {
+  List<Item> _result;
+
+  @override
+  void initState() {
+    super.initState();
+    _result = List(widget.fields.length);
+  }
+
+  @override
   Widget build(BuildContext context) {
     List<FixedExtentScrollController> controllers = [];
-    for (int i = 0; i < this.fields.length; i++) {
-      controllers.add(FixedExtentScrollController());
+    for (int i = 0; i < this.widget.fields.length; i++) {
+      controllers.add(FixedExtentScrollController(
+        initialItem: widget.fields[i].initialItemIndex ?? 0,
+      ));
     }
     return Center(
       child: Container(
-        width: this.width,
-        height: this.height,
+        width: this.widget.width,
+        height: this.widget.height,
         padding: EdgeInsets.only(top: 30.0),
         decoration: ShapeDecoration(
           shape:
@@ -55,40 +75,78 @@ class CustomPicker extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            SelectedItemIndicator(width: width),
+            SelectedItemIndicator(width: widget.width),
             MultipleItemSelector(
-                fields: fields,
-                width: width,
-                selectedTextStyle: selectedTextStyle,
-                unselectedTextStyle: unselectedTextStyle,
-                controllers: controllers),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              child: Container(
-                height: 24.0 * 3,
-                color: Color(0xfff3f3f3),
-                width: width,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Spacer(),
-                    CupertinoButton(
-                      onPressed: () {},
-                      child: ButtonText(
-                        title: '취소',
-                        isDestructive: true,
-                      ),
-                    ),
-                    CupertinoButton(
-                      onPressed: () {},
-                      child: ButtonText(
-                        title: '확인',
-                      ),
-                    ),
-                  ],
-                ),
+              fields: widget.fields,
+              width: widget.width,
+              selectedTextStyle: widget.selectedTextStyle,
+              unselectedTextStyle: widget.unselectedTextStyle,
+              controllers: controllers,
+              onItemSelected: this._onItemSelected,
+            ),
+            ConfirmButton(
+              width: widget.width,
+              getResult: this._getResult,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onItemSelected(int index, item) => _result[index] = item;
+
+  void _getResult() => this._result;
+}
+
+class Item {
+  final int index;
+  final value;
+  Item({this.index, this.value});
+  String toString() => '$index: $value';
+}
+
+class ConfirmButton extends StatelessWidget {
+  const ConfirmButton({
+    Key key,
+    @required this.width,
+    @required this.getResult,
+  }) : super(key: key);
+
+  final double width;
+  final Function getResult;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      child: Container(
+        height: 24.0 * 3,
+        color: Color(0xfff3f3f3),
+        width: width,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Spacer(),
+            CupertinoButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: ButtonText(
+                title: '취소',
+                isDestructive: true,
+              ),
+            ),
+            CupertinoButton(
+              onPressed: () {
+                Navigator.of(context).pop(
+                  this.getResult(),
+                );
+              },
+              child: ButtonText(
+                title: '확인',
               ),
             ),
           ],
@@ -162,6 +220,7 @@ class MultipleItemSelector extends StatelessWidget {
     @required this.selectedTextStyle,
     @required this.unselectedTextStyle,
     @required this.controllers,
+    @required this.onItemSelected,
   }) : super(key: key);
 
   final List<ItemList> fields;
@@ -169,6 +228,7 @@ class MultipleItemSelector extends StatelessWidget {
   final TextStyle selectedTextStyle;
   final TextStyle unselectedTextStyle;
   final List<FixedExtentScrollController> controllers;
+  final OnItemSelectFunction onItemSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -179,8 +239,16 @@ class MultipleItemSelector extends StatelessWidget {
             .fields
             .asMap()
             .map((int controlIndex, ItemList list) {
+              // Start of the real widget
               FixedExtentScrollController controller =
                   controllers[controlIndex];
+              this.onItemSelected(
+                controlIndex,
+                Item(
+                  index: 0,
+                  value: list.items[0],
+                ),
+              );
               return MapEntry(
                 controlIndex,
                 StatefulBuilder(builder: (context, setState) {
@@ -194,6 +262,13 @@ class MultipleItemSelector extends StatelessWidget {
                       onSelectedItemChanged: (index) {
                         setState(() {
                           selectedItem = index;
+                          this.onItemSelected(
+                            controlIndex,
+                            Item(
+                              index: index,
+                              value: list.items[index],
+                            ),
+                          );
                         });
                       },
                       childDelegate: ListWheelChildBuilderDelegate(
@@ -236,5 +311,10 @@ class MultipleItemSelector extends StatelessWidget {
 class ItemList {
   final String listTitle;
   final List items;
-  const ItemList({@required this.items, this.listTitle});
+  final int initialItemIndex;
+  const ItemList({
+    @required this.items,
+    this.listTitle,
+    this.initialItemIndex,
+  });
 }

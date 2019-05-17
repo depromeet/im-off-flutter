@@ -81,25 +81,34 @@ class SettingMain extends StatelessWidget {
           JalnanTitle(title: '출퇴근 시간을 설정해주세요.', size: 16.0),
           SizedBox(height: 16.0),
           SettingSelector(
-            title: '출근시간',
+            title: '출근 시간',
             itemFields: timeItemList,
+            onSelected: (List<Item> result) {
+              print(result);
+            },
           ),
           SizedBox(height: 6.0),
           SettingSelector(
-            title: '퇴근시간',
+            title: '퇴근 시간',
             itemFields: timeItemList,
+            onSelected: (List<Item> result) {
+              print(result);
+            },
           ),
           SizedBox(height: 50.0),
           JalnanTitle(title: '직군을 선택해주세요.', size: 16.0),
           SizedBox(height: 16.0),
           SettingSelector(
-            title: '나의직군',
+            title: '나의 직군',
             itemFields: [
               const ItemList(
                 items: jobs,
                 listTitle: 'jobs',
               ),
             ],
+            onSelected: (List<Item> result) {
+              print(result);
+            },
           ),
           SizedBox(height: 50.0),
           NotificationSwitch(),
@@ -123,10 +132,12 @@ class SettingMain extends StatelessWidget {
 class SettingSelector extends StatelessWidget {
   final String title;
   final List<ItemList> itemFields;
+  final Function onSelected;
 
   SettingSelector({
     this.title,
     @required this.itemFields,
+    this.onSelected,
   });
   @override
   Widget build(BuildContext context) {
@@ -136,8 +147,8 @@ class SettingSelector extends StatelessWidget {
         color: Color(0xfff3f3f3),
       ),
       child: CupertinoButton(
-        onPressed: () {
-          showCupertinoModalPopup(
+        onPressed: () async {
+          var result = await showCupertinoModalPopup(
             context: context,
             builder: (context) {
               return CustomPicker(
@@ -146,6 +157,9 @@ class SettingSelector extends StatelessWidget {
               );
             },
           );
+          if (this.onSelected != null) {
+            this.onSelected(result);
+          }
         },
         padding: EdgeInsets.symmetric(
           horizontal: 14.0,

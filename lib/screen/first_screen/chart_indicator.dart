@@ -57,7 +57,7 @@ class _ChartIndicatorState extends State<ChartIndicator>
 
   List<Widget> _buildTimeSector() {
     final DateTime date = DateTime.now();
-    final int gapMin = Duration(minutes: 682).inMinutes;
+    final int gapMin = Duration(minutes: 201).inMinutes;
     final int startMin = (date.hour * 60 + date.minute) % 720;
     return [
       CustomPaint(
