@@ -101,6 +101,7 @@ class _IamOffMainState extends State<IamOffMain> {
         ),
       ],
       child: PageView(
+        physics: ClampingScrollPhysics(),
         scrollDirection: Axis.vertical,
         controller: _pageController,
         children: <Widget>[

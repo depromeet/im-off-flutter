@@ -28,6 +28,7 @@ class SecondScreen extends StatelessWidget {
     return Expanded(
       child: ListView(
         padding: EdgeInsets.only(top: 4.0),
+        physics: ClampingScrollPhysics(),
         children: <Widget>[
           Center(
             child: OffCard(),

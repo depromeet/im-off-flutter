@@ -31,6 +31,14 @@ class SettingData {
     this.status,
   });
 
+  SettingData copyWith({
+    UserSetting settings,
+    SettingStatus status,
+  }) =>
+      SettingData(
+        settings: settings ?? this.settings,
+        status: status ?? this.status,
+      );
   @override
   bool operator ==(other) =>
       other is SettingData &&
@@ -61,14 +69,21 @@ class SettingBloc extends Bloc<SettingEvent, SettingData> {
 
         if (initialized) {
           String settingsJson = prefs.getString(settingsKey);
+          bool isInitialized = true;
+          UserSetting setting = UserSetting.fromJson(
+            jsonDecode(settingsJson),
+          );
+          if (setting.endMinute == null ||
+              setting.startMinute == null ||
+              setting.jobNum == null) isInitialized = false;
           yield SettingData(
-            status: SettingStatus.isInitialized,
-            settings: UserSetting.fromJson(
-              jsonDecode(settingsJson),
-            ),
+            status: isInitialized
+                ? SettingStatus.isInitialized
+                : SettingStatus.isNotInitialized,
+            settings: setting,
           );
         } else {
-          yield SettingData(
+          yield currentState.copyWith(
             status: SettingStatus.isNotInitialized,
           );
         }
@@ -77,8 +92,14 @@ class SettingBloc extends Bloc<SettingEvent, SettingData> {
         String json = jsonEncode(event.settings);
         prefs.setString(settingsKey, json);
         prefs.setBool(initializedKey, true);
+        bool isInitialized = true;
+        if (event.settings.endMinute == null ||
+            event.settings.startMinute == null ||
+            event.settings.jobNum == null) isInitialized = false;
         yield SettingData(
-          status: SettingStatus.isInitialized,
+          status: isInitialized
+              ? SettingStatus.isInitialized
+              : SettingStatus.isNotInitialized,
           settings: event.settings,
         );
         break;

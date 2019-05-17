@@ -11,7 +11,7 @@ class UserSetting {
     this.startMinute,
   });
 
-  UserSetting copWith({
+  UserSetting copyWith({
     int jobNum,
     int startMinute,
     int endMinute,

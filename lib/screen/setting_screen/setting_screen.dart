@@ -35,9 +35,9 @@ class SettingDone extends StatelessWidget {
       onTap: () {
         UserSetting setting =
             BlocProvider.of<SettingBloc>(context).userSettings;
-        if (setting.jobNum == null ||
-            setting.startMinute == null ||
-            setting.endMinute == null) {
+        if (setting?.jobNum == null ||
+            setting?.startMinute == null ||
+            setting?.endMinute == null) {
           showCupertinoDialog(
             context: context,
             builder: (context) {
@@ -90,9 +90,9 @@ class SettingMain extends StatelessWidget {
       bloc: _settingBloc,
       builder: (context, SettingData data) {
         UserSetting _userSetting = data.settings;
-        int jobNum = _userSetting.jobNum;
-        int startMinutes = _userSetting.startMinute;
-        int endMinutes = _userSetting.endMinute;
+        int jobNum = _userSetting?.jobNum;
+        int startMinutes = _userSetting?.startMinute;
+        int endMinutes = _userSetting?.endMinute;
         if (startMinutes != null) {}
 
         if (endMinutes != null) {}
@@ -131,7 +131,7 @@ class SettingMain extends StatelessWidget {
                     int time = _timeInMinutes(result);
                     _settingBloc.dispatch(
                       SettingEvent(
-                        settings: _userSetting.copWith(startMinute: time),
+                        settings: _userSetting.copyWith(startMinute: time),
                         action: SettingAction.setSettings,
                       ),
                     );
@@ -148,7 +148,7 @@ class SettingMain extends StatelessWidget {
                     int time = _timeInMinutes(result);
                     _settingBloc.dispatch(
                       SettingEvent(
-                        settings: _userSetting.copWith(endMinute: time),
+                        settings: _userSetting.copyWith(endMinute: time),
                         action: SettingAction.setSettings,
                       ),
                     );
@@ -171,7 +171,8 @@ class SettingMain extends StatelessWidget {
                   if (result != null) {
                     _settingBloc.dispatch(
                       SettingEvent(
-                        settings: _userSetting.copWith(jobNum: result[0].index),
+                        settings:
+                            _userSetting.copyWith(jobNum: result[0].index),
                         action: SettingAction.setSettings,
                       ),
                     );

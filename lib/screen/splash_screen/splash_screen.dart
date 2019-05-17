@@ -17,6 +17,7 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   LottieComposition _composition;
   AnimationController _controller;
+  bool firstLoaded = true;
   double lottieWidth;
   double lottieHeight;
 
@@ -49,15 +50,21 @@ class _SplashScreenState extends State<SplashScreen>
     SettingBloc _settingBloc = BlocProvider.of<SettingBloc>(context);
     return BlocListener(
       bloc: _settingBloc,
-      listener: (context, SettingData data) {
-        UserSetting setting = data.settings;
+      listener: (context, SettingData data) async {
         switch (data.status) {
           case SettingStatus.isNotInitialized:
-            return Navigator.of(context).pushNamed(IamOffRoute.settings);
+            if (firstLoaded) {
+              firstLoaded = false;
+              await Navigator.of(context).pushNamed(IamOffRoute.settings);
+              return Navigator.of(context).popAndPushNamed(IamOffRoute.home);
+            }
+            break;
           case SettingStatus.isInitialized:
-            return Navigator.of(context).pushReplacementNamed(IamOffRoute.home);
+            if (firstLoaded)
+              return Navigator.of(context)
+                  .pushReplacementNamed(IamOffRoute.home);
+            break;
           default:
-            // TODO: settings의 데이터 중에 null인 데이터 있는지 확인해야함.
             break;
         }
       },

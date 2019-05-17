@@ -45,7 +45,7 @@ class _NotificationSwitchState extends State<NotificationSwitch> {
               _settingBloc.dispatch(
                 SettingEvent(
                   action: SettingAction.setSettings,
-                  settings: setting.copWith(
+                  settings: setting.copyWith(
                     isAlarmSet: this.isSet,
                   ),
                 ),
