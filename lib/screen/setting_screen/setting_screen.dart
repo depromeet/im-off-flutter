@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:im_off/bloc/setting_bloc.dart';
+import 'package:im_off/model/jobs.dart';
+import 'package:im_off/model/times.dart';
 import 'package:im_off/model/user_setting.dart';
 import 'package:im_off/screen/setting_screen/common.dart';
+import 'package:im_off/screen/setting_screen/custom_picker.dart';
 import 'package:im_off/screen/setting_screen/notification_switch.dart';
 
 class SettingScreen extends StatelessWidget {
@@ -72,17 +75,32 @@ class SettingMain extends StatelessWidget {
         horizontal: 30.0,
       ),
       child: ListView(
+        physics: ClampingScrollPhysics(),
         children: <Widget>[
           SizedBox(height: 12.0),
           JalnanTitle(title: '출퇴근 시간을 설정해주세요.', size: 16.0),
           SizedBox(height: 16.0),
-          SettingSelector(title: '출근시간'),
+          SettingSelector(
+            title: '출근시간',
+            itemFields: timeItemList,
+          ),
           SizedBox(height: 6.0),
-          SettingSelector(title: '퇴근시간'),
+          SettingSelector(
+            title: '퇴근시간',
+            itemFields: timeItemList,
+          ),
           SizedBox(height: 50.0),
           JalnanTitle(title: '직군을 선택해주세요.', size: 16.0),
           SizedBox(height: 16.0),
-          SettingSelector(title: '나의직군'),
+          SettingSelector(
+            title: '나의직군',
+            itemFields: [
+              const ItemList(
+                items: jobs,
+                listTitle: 'jobs',
+              ),
+            ],
+          ),
           SizedBox(height: 50.0),
           NotificationSwitch(),
           SizedBox(height: 10.0),
@@ -104,9 +122,11 @@ class SettingMain extends StatelessWidget {
 
 class SettingSelector extends StatelessWidget {
   final String title;
+  final List<ItemList> itemFields;
 
   SettingSelector({
     this.title,
+    @required this.itemFields,
   });
   @override
   Widget build(BuildContext context) {
@@ -117,12 +137,11 @@ class SettingSelector extends StatelessWidget {
       ),
       child: CupertinoButton(
         onPressed: () {
-          showCupertinoDialog(
+          showCupertinoModalPopup(
             context: context,
             builder: (context) {
-              return CupertinoDatePicker(
-                onDateTimeChanged: (date) {},
-                mode: CupertinoDatePickerMode.time,
+              return CustomPicker(
+                fields: this.itemFields,
               );
             },
           );
