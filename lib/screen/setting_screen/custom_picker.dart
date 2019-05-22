@@ -48,22 +48,40 @@ typedef OnItemSelectFunction = Function(int, dynamic);
 
 class _CustomPickerState extends State<CustomPicker> {
   List<Item> _result;
+  List<FixedExtentScrollController> controllers = [];
 
   @override
   void initState() {
     super.initState();
-    _result = List(widget.fields.length);
+    _result = List.generate(
+      widget.fields.length,
+      (index) {
+        int init = widget.fields[index].initialItemIndex ?? 0;
+        if (init < 0) {
+          init = widget.fields[index].items.length - 1;
+          widget.fields[index].initialItemIndex = init;
+        }
+        controllers.add(
+          FixedExtentScrollController(
+            initialItem: init,
+          ),
+        );
+        return Item(
+          index: init,
+          value: widget.fields[index].items[init],
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    controllers.forEach((controller) => controller.dispose());
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    List<FixedExtentScrollController> controllers = [];
-    for (int i = 0; i < this.widget.fields.length; i++) {
-      int init = widget.fields[i].initialItemIndex ?? 0;
-      controllers.add(FixedExtentScrollController(
-        initialItem: init,
-      ));
-    }
     return Center(
       child: Container(
         width: this.widget.width,
@@ -243,13 +261,6 @@ class MultipleItemSelector extends StatelessWidget {
               FixedExtentScrollController controller =
                   controllers[controlIndex];
               int selectedItem = controller.initialItem;
-              this.onItemSelected(
-                controlIndex,
-                Item(
-                  index: 0,
-                  value: list.items[0],
-                ),
-              );
               return MapEntry(
                 controlIndex,
                 StatefulBuilder(builder: (context, setState) {
@@ -312,10 +323,17 @@ class MultipleItemSelector extends StatelessWidget {
 class ItemList {
   final String listTitle;
   final List items;
-  final int initialItemIndex;
-  const ItemList({
+  int initialItemIndex;
+
+  ItemList({
     @required this.items,
     this.listTitle,
-    this.initialItemIndex,
+    this.initialItemIndex = 0,
   });
+
+  ItemList copy() => ItemList(
+        items: this.items,
+        listTitle: this.listTitle,
+        initialItemIndex: this.initialItemIndex,
+      );
 }

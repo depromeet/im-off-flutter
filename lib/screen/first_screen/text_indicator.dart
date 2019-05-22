@@ -65,8 +65,13 @@ class TextIndicator extends StatelessWidget {
   }
 
   Text _buildTitle() {
+    // TODO: 요일별로 응원 문구 다르게 하기
+    // TODO: 야근 시 경고 문구 표시하기
+    // TODO: 퇴근 후 상황에 맞는 마무리 문구 표시 하기
+    int weekday = DateTime.now().weekday;
+    String ment = encourageMent[weekday - 1];
     return Text(
-      "피곤한 월요일\n오늘 꼭 칼퇴하세요.",
+      ment,
       style: const TextStyle(
         color: const Color(0xff191919),
         fontWeight: FontWeight.w400,
@@ -78,3 +83,20 @@ class TextIndicator extends StatelessWidget {
     );
   }
 }
+
+const List<String> encourageMent = [
+  "피곤한 월요일\n오늘 꼭 칼퇴하세요.",
+  "숨 가쁜 화요일\n오늘 꼭 칼퇴하세요.",
+  "지치는 수요일\n오늘 꼭 칼퇴하세요.",
+  "아직도 목요일\n오늘 꼭 칼퇴하세요.",
+  "불타는 금요일\n오늘 꼭 칼퇴하세요.",
+  "드디어 토요일\n돼지런하게 보내요.",
+  "즐거운 일요일\n돼지런하게 보내요.",
+];
+
+const String alertMent = "야근중입니다.\n어서 퇴근하세요!";
+
+const List<String> finishMent = [
+  "축하합니다.\n칼퇴하셨군요!",
+  "야근하셨군요...\n내일은 꼭 칼퇴를!",
+];

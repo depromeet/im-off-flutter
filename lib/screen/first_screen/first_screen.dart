@@ -10,6 +10,7 @@ import 'text_indicator.dart';
 class FirstScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // TODO: 현재 출/근무/퇴근 중 어느 시점인지 확인해야 함.
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.white,
       navigationBar: CupertinoNavigationBar(

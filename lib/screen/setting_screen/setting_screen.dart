@@ -93,9 +93,15 @@ class SettingMain extends StatelessWidget {
         int jobNum = _userSetting?.jobNum;
         int startMinutes = _userSetting?.startMinute;
         int endMinutes = _userSetting?.endMinute;
-        if (startMinutes != null) {}
 
-        if (endMinutes != null) {}
+        String startMinuteInString = minutesToString(startMinutes);
+        String endMinuteInString = minutesToString(endMinutes);
+
+        List<String> splitStart = startMinuteInString
+            ?.replaceAll(RegExp(':'), ' ')
+            .split(RegExp(' '));
+        List<String> splitEnd =
+            endMinuteInString?.replaceAll(RegExp(':'), ' ').split(RegExp(' '));
 
         List<ItemList> timeItemList = [
           ItemList(
@@ -104,9 +110,11 @@ class SettingMain extends StatelessWidget {
           ),
           ItemList(
             items: hours,
+            listTitle: '시간',
           ),
           ItemList(
             items: minutes,
+            listTitle: '분',
           ),
         ];
 
@@ -122,13 +130,25 @@ class SettingMain extends StatelessWidget {
               JalnanTitle(title: '출퇴근 시간을 설정해주세요.', size: 16.0),
               SizedBox(height: 16.0),
               SettingSelector(
-                title: startMinutes == null
-                    ? '출근 시간'
-                    : minutesToString(startMinutes),
-                itemFields: timeItemList,
+                title: startMinuteInString ?? "출근 시간",
+                itemFields: startMinuteInString == null
+                    ? timeItemList
+                    : timeItemList
+                        .asMap()
+                        .map(
+                          (index, item) => MapEntry(
+                                index,
+                                item.copy()
+                                  ..initialItemIndex = item.items.indexWhere(
+                                    (value) => value == splitStart[index],
+                                  ),
+                              ),
+                        )
+                        .values
+                        .toList(),
                 onSelected: (List<Item> result) {
                   if (result != null) {
-                    int time = _timeInMinutes(result);
+                    int time = stringTimeToMinutes(result);
                     _settingBloc.dispatch(
                       SettingEvent(
                         settings: _userSetting.copyWith(startMinute: time),
@@ -140,12 +160,25 @@ class SettingMain extends StatelessWidget {
               ),
               SizedBox(height: 6.0),
               SettingSelector(
-                title:
-                    endMinutes == null ? '퇴근 시간' : minutesToString(endMinutes),
-                itemFields: timeItemList,
+                title: endMinuteInString ?? "퇴근 시간",
+                itemFields: startMinuteInString == null
+                    ? timeItemList
+                    : timeItemList
+                        .asMap()
+                        .map(
+                          (index, item) => MapEntry(
+                                index,
+                                item.copy()
+                                  ..initialItemIndex = item.items.indexWhere(
+                                    (value) => value == splitEnd[index],
+                                  ),
+                              ),
+                        )
+                        .values
+                        .toList(),
                 onSelected: (List<Item> result) {
                   if (result != null) {
-                    int time = _timeInMinutes(result);
+                    int time = stringTimeToMinutes(result);
                     _settingBloc.dispatch(
                       SettingEvent(
                         settings: _userSetting.copyWith(endMinute: time),
@@ -199,7 +232,7 @@ class SettingMain extends StatelessWidget {
     );
   }
 
-  int _timeInMinutes(List<Item> times) {
+  int stringTimeToMinutes(List<Item> times) {
     int timeInMinutes = 0;
     if (times[0].value == pmAm[1]) timeInMinutes = 60 * 12;
     if (times[1].value != 12.toString())
@@ -210,9 +243,10 @@ class SettingMain extends StatelessWidget {
   }
 
   String minutesToString(int timeInMinutes) {
+    if (timeInMinutes == null) return null;
     String amPm = timeInMinutes >= 720 ? "오후" : "오전";
     int hours = ((timeInMinutes % 720) ~/ 60);
-    if (hours == 0 && timeInMinutes >= 720) hours = 12;
+    if (hours == 0) hours = 12;
 
     int minutes = (timeInMinutes % 60);
     String sHours = hours < 10 ? "0$hours" : "$hours";
@@ -226,13 +260,11 @@ class SettingSelector extends StatelessWidget {
   final String title;
   final List<ItemList> itemFields;
   final Function onSelected;
-  final int initialItem;
 
   SettingSelector({
     this.title,
     @required this.itemFields,
     this.onSelected,
-    this.initialItem = 0,
   });
   @override
   Widget build(BuildContext context) {
@@ -252,7 +284,7 @@ class SettingSelector extends StatelessWidget {
               );
             },
           );
-          if (this.onSelected != null) {
+          if (this.onSelected != null && result != null) {
             this.onSelected(result);
           }
         },
