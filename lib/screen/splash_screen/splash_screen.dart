@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:im_off/bloc/setting_bloc.dart';
-import 'package:im_off/model/user_setting.dart';
 import 'package:im_off/screen/routes.dart';
 import 'package:lottie_flutter/lottie_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -79,8 +78,8 @@ class _SplashScreenState extends State<SplashScreen>
                     composition: this._composition,
                     coerceDuration: true,
                     size: Size(
-                      this._composition.bounds.width / 3,
-                      this._composition.bounds.height / 3,
+                      this._composition.bounds.width / 4.5,
+                      this._composition.bounds.height / 4.5,
                     ),
                   ),
           ),
