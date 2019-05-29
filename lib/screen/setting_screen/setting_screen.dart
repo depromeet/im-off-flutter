@@ -1,12 +1,17 @@
+import 'package:easy_stateful_builder/easy_stateful_builder.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:im_off/bloc/setting_bloc.dart';
 import 'package:im_off/model/jobs.dart';
 import 'package:im_off/model/times.dart';
 import 'package:im_off/model/user_setting.dart';
+import 'package:im_off/model/working_status.dart';
 import 'package:im_off/screen/setting_screen/common.dart';
 import 'package:im_off/screen/setting_screen/custom_picker.dart';
 import 'package:im_off/screen/setting_screen/notification_switch.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../model/constant.dart';
 
 class SettingScreen extends StatelessWidget {
   @override
@@ -32,7 +37,7 @@ class SettingDone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         UserSetting setting =
             BlocProvider.of<SettingBloc>(context).userSettings;
         if (setting?.jobNum == null ||
@@ -54,8 +59,19 @@ class SettingDone extends StatelessWidget {
               );
             },
           );
-        } else
+        } else {
+          final bool isAppLoded = ModalRoute.of(context).settings.arguments;
+          if (isAppLoded) {
+            // 유저 시작 state 변경
+            EasyStatefulBuilder.setState(workingStatusKey, (state) {
+              state.nextState = (state.currentState as WorkingStatus).copyWith(
+                startTimeInMinute: setting.startMinute,
+                setting: setting,
+              );
+            });
+          }
           Navigator.of(context).pop();
+        }
       },
       child: Container(
         decoration: ShapeDecoration(

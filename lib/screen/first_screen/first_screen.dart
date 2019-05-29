@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_stateful_builder/easy_stateful_builder.dart';
 
 import 'package:im_off/bloc/navigation_bloc.dart';
 import 'package:im_off/screen/first_screen/chart_indicator.dart';
 
 import 'text_indicator.dart';
+import '../../model/working_status.dart';
 
 class FirstScreen extends StatelessWidget {
   @override
@@ -20,20 +22,24 @@ class FirstScreen extends StatelessWidget {
         trailing: CupertinoButton(
           padding: EdgeInsets.all(0.0),
           onPressed: () {
-            Navigator.of(context).pushNamed('/settings');
+            Navigator.of(context).pushNamed('/settings', arguments: true);
           },
           child: Image.asset('images/setting_btn.png'),
         ),
       ),
-      child: Stack(
-        children: <Widget>[
-          TextIndicator(),
-          Positioned(
-            top: 224.0,
-            left: -30.0,
-            child: ChartIndicator(),
-          ),
-        ],
+      child: EasyStatefulBuilder(
+        builder: (context, status) {
+          return Stack(
+            children: <Widget>[
+              TextIndicator(),
+              Positioned(
+                top: 224.0,
+                left: -30.0,
+                child: ChartIndicator(),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

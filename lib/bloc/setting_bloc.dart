@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/user_setting.dart';
+import '../model/constant.dart';
 
 enum SettingAction { getSettings, setSettings }
 
@@ -49,9 +50,6 @@ class SettingData {
   @override
   int get hashCode => _hashCode;
 }
-
-const initializedKey = 'initialized';
-const settingsKey = 'settings';
 
 class SettingBloc extends Bloc<SettingEvent, SettingData> {
   @override

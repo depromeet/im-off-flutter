@@ -23,7 +23,7 @@ class _ChartIndicatorState extends State<ChartIndicator>
 
     this._animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1000),
+      duration: Duration(milliseconds: 2700),
       lowerBound: 0.0,
       upperBound: 1.0,
     );

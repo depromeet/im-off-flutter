@@ -1,16 +1,23 @@
 import 'dart:async';
+import 'dart:math';
+import 'dart:convert';
 
+import 'package:easy_stateful_builder/easy_stateful_builder.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:im_off/model/working_status.dart';
 import 'package:provider/provider.dart';
 
 import 'package:im_off/screen/screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'bloc/navigation_bloc.dart';
 import 'bloc/setting_bloc.dart';
 
 import 'screen/routes.dart';
+import 'model/constant.dart';
+import 'model/user_setting.dart';
 
 void main() {
 //  timeDilation = 2.0;
@@ -71,9 +78,46 @@ class _IamOffMainState extends State<IamOffMain> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    this._loadOffState();
+  }
+
+  @override
   void dispose() {
     navigationStream.close();
     super.dispose();
+  }
+
+  void _loadOffState() async {
+    DateTime now = DateTime.now();
+    if (now.weekday == DateTime.saturday || now.weekday == DateTime.sunday) {
+      // 주말인 경우
+      WorkingStatus stat = WorkingStatus(isWeekDay: false);
+      EasyStatefulBuilder.setState(workingStatusKey, (state) {
+        state.nextState = stat;
+      });
+    } else {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String workingStatusJson = prefs.getString(workingStatusKey);
+      String userSettingJson = prefs.getString(settingsKey);
+      UserSetting setting = UserSetting.fromJson(jsonDecode(userSettingJson));
+      WorkingStatus stat = WorkingStatus();
+      if (workingStatusJson != null) {
+        stat = WorkingStatus.fromJson(jsonDecode(workingStatusJson));
+      }
+      stat.setting = setting;
+      // 주중인데 일을 시작 안했거나, 아직 퇴근 안했을 경우
+      if (stat.startTimeInMinute == null || stat.endTimeInMinute == null) {
+        if (now.minute + now.hour * 60 >= setting.startMinute) {
+          stat.startTimeInMinute = setting.startMinute;
+        }
+      }
+      prefs.setString(workingStatusKey, jsonEncode(stat));
+      EasyStatefulBuilder.setState(workingStatusKey, (state) {
+        state.nextState = stat;
+      });
+    }
   }
 
   @override

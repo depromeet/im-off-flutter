@@ -54,7 +54,8 @@ class _SplashScreenState extends State<SplashScreen>
           case SettingStatus.isNotInitialized:
             if (firstLoaded) {
               firstLoaded = false;
-              await Navigator.of(context).pushNamed(IamOffRoute.settings);
+              await Navigator.of(context)
+                  .pushNamed(IamOffRoute.settings, arguments: true);
               return Navigator.of(context).popAndPushNamed(IamOffRoute.home);
             }
             break;
