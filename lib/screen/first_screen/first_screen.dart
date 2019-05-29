@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:im_off/model/constant.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_stateful_builder/easy_stateful_builder.dart';
 
@@ -28,6 +29,7 @@ class FirstScreen extends StatelessWidget {
         ),
       ),
       child: EasyStatefulBuilder(
+        identifier: workingStatusKey,
         builder: (context, status) {
           return Stack(
             children: <Widget>[
