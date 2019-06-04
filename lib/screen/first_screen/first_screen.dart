@@ -38,12 +38,12 @@ class FirstScreen extends StatelessWidget {
               Positioned(
                 bottom: 88.0,
                 left: -28.0,
-                child: ChartIndicator(),
+                child: ChartIndicator(status: status),
               ),
               Positioned(
                 bottom: 113.0,
                 left: 220.0,
-                child: BlueButton(),
+                child: BlueButton(status: status),
               ),
             ],
           );
@@ -54,6 +54,10 @@ class FirstScreen extends StatelessWidget {
 }
 
 class BlueButton extends StatelessWidget {
+  BlueButton({
+    this.status,
+  });
+  final WorkingStatus status;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

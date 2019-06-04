@@ -3,8 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:math' as math;
 
 import 'package:im_off/bloc/setting_bloc.dart';
+import 'package:im_off/model/working_status.dart';
 
 class ChartIndicator extends StatefulWidget {
+  ChartIndicator({
+    this.status,
+  });
+  final WorkingStatus status;
   @override
   _ChartIndicatorState createState() => _ChartIndicatorState();
 }
@@ -43,13 +48,16 @@ class _ChartIndicatorState extends State<ChartIndicator>
   @override
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
+    String outlineAsset = 'images/circle_gradation_red.png';
     return SizedBox(
       width: 304.0,
       height: 304.0,
       child: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          OutlineAnimator(),
+          OutlineAnimator(
+            asset: outlineAsset,
+          ),
           ..._buildTimeSector(),
           Center(
             child: Text(
@@ -129,6 +137,10 @@ class ChartClock extends CustomPainter {
 }
 
 class OutlineAnimator extends StatefulWidget {
+  OutlineAnimator({
+    this.asset,
+  });
+  final String asset;
   @override
   _OutlineAnimatorState createState() => _OutlineAnimatorState();
 }
@@ -157,7 +169,7 @@ class _OutlineAnimatorState extends State<OutlineAnimator>
     return AnimatedBuilder(
       animation: _animationController,
       child: Image.asset(
-        'images/circle_gradation_blue.png',
+        widget.asset,
         fit: BoxFit.contain,
       ),
       builder: (BuildContext context, Widget child) {
