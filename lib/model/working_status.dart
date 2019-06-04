@@ -1,50 +1,48 @@
+import 'dart:convert';
+
+import 'package:im_off/model/constant.dart';
 import 'package:im_off/model/user_setting.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WorkingStatus {
-  int startTimeInMinute;
-  int endTimeInMinute;
+  int startEpoch;
+  int endEpoch;
   bool isWeekDay;
-  bool gotOff;
-  bool initialized;
   UserSetting setting;
 
   WorkingStatus({
-    this.endTimeInMinute,
-    this.startTimeInMinute,
     this.isWeekDay = true,
-    this.gotOff = false,
     this.setting,
-    this.initialized = false,
+    this.startEpoch,
+    this.endEpoch,
   });
 
   WorkingStatus copyWith({
-    int startTimeInMinute,
-    int endTimeInMinute,
     bool isWeekDay,
-    bool gotOff,
     bool initialized,
     UserSetting setting,
+    int startEpoch,
+    int endEpoch,
   }) =>
       WorkingStatus(
-        endTimeInMinute: endTimeInMinute ?? this.endTimeInMinute,
-        startTimeInMinute: startTimeInMinute ?? this.startTimeInMinute,
         isWeekDay: isWeekDay ?? this.isWeekDay,
-        gotOff: gotOff ?? this.gotOff,
         setting: setting ?? this.setting,
-        initialized: initialized ?? this.initialized,
+        startEpoch: startEpoch ?? this.startEpoch,
+        endEpoch: endEpoch ?? this.endEpoch,
       );
 
   WorkingStatus.fromJson(Map<String, dynamic> json)
-      : startTimeInMinute = json['start'],
-        gotOff = json['off'],
-        isWeekDay = true,
-        initialized = json['init'],
-        endTimeInMinute = json['end'];
+      : isWeekDay = true,
+        startEpoch = json['startEpoch'],
+        endEpoch = json['endEpoch'];
 
   Map<String, dynamic> toJson() => {
-        'start': this.startTimeInMinute,
-        'end': this.endTimeInMinute,
-        'off': this.gotOff,
-        'init': this.initialized,
+        'startEpoch': this.startEpoch,
+        'endEpoch': this.endEpoch,
       };
+
+  void saveStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(workingStatusKey, jsonEncode(this));
+  }
 }

@@ -42,14 +42,27 @@ class _ChartIndicatorState extends State<ChartIndicator>
 
   @override
   Widget build(BuildContext context) {
+    DateTime now = DateTime.now();
     return SizedBox(
-      width: 294.0,
-      height: 294.0,
+      width: 304.0,
+      height: 304.0,
       child: Stack(
         fit: StackFit.expand,
         children: <Widget>[
           OutlineAnimator(),
           ..._buildTimeSector(),
+          Center(
+            child: Text(
+              "${now.hour}:${now.minute}",
+              style: const TextStyle(
+                color: const Color(0xff191919),
+                fontWeight: FontWeight.w400,
+                fontFamily: "JalnanOTF",
+                fontStyle: FontStyle.normal,
+                fontSize: 65.0,
+              ),
+            ),
+          ),
         ],
       ),
     );

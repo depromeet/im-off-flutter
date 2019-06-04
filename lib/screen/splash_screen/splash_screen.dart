@@ -55,7 +55,7 @@ class _SplashScreenState extends State<SplashScreen>
             if (firstLoaded) {
               firstLoaded = false;
               await Navigator.of(context)
-                  .pushNamed(IamOffRoute.settings, arguments: true);
+                  .pushNamed(IamOffRoute.settings, arguments: false);
               return Navigator.of(context).popAndPushNamed(IamOffRoute.home);
             }
             break;

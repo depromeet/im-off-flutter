@@ -294,13 +294,23 @@ class MultipleItemSelector extends StatelessWidget {
                                       ((this.fields.length == 1) ? 26.0 : 0.0),
                                 ),
                                 width: constraints.maxWidth,
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    list.items[index].toString(),
-                                    style: index == selectedItem
-                                        ? this.selectedTextStyle
-                                        : this.unselectedTextStyle,
+                                child: GestureDetector(
+                                  onTapUp: (_) {
+                                    print("$index is clicked");
+                                    controller.animateToItem(
+                                      index,
+                                      duration: Duration(milliseconds: 500),
+                                      curve: Curves.easeIn,
+                                    );
+                                  },
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      list.items[index].toString(),
+                                      style: index == selectedItem
+                                          ? this.selectedTextStyle
+                                          : this.unselectedTextStyle,
+                                    ),
                                   ),
                                 ),
                               );

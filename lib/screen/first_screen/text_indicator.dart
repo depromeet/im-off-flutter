@@ -1,9 +1,17 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:im_off/model/working_status.dart';
 import 'package:provider/provider.dart';
 import '../../bloc/navigation_bloc.dart';
 
+import '../setting_screen/setting_screen.dart';
+
 class TextIndicator extends StatelessWidget {
+  TextIndicator({
+    @required this.status,
+  });
+  final WorkingStatus status;
+
   @override
   Widget build(BuildContext context) {
     var navStreamController =
@@ -51,8 +59,61 @@ class TextIndicator extends StatelessWidget {
   }
 
   Text _buildDesc() {
+    String text = "퇴근 시간 확인중";
+    DateTime now = DateTime.now();
+    if (status != null) {
+      int workingMinutes =
+          status.setting.endMinute - status.setting.startMinute;
+      if (status.startEpoch != null) {
+        // 출근 했다.
+        DateTime started =
+            DateTime.fromMillisecondsSinceEpoch(status.startEpoch);
+        DateTime expectedOff = started.add(Duration(minutes: workingMinutes));
+        if (status.endEpoch != null) {
+          // 퇴근 했다.
+          DateTime offTime =
+              DateTime.fromMillisecondsSinceEpoch(status.endEpoch);
+          int endInMinutes = offTime.hour * 60 + offTime.minute;
+          String stringTime = minutesToString(endInMinutes, toText: true);
+
+          // 15 분 정도 늦게 나간건 칼퇴야
+          expectedOff = expectedOff.add(Duration(minutes: 15));
+
+          if (offTime.isAfter(expectedOff)) {
+            // 야근 해버렸음
+            text = stringTime + " 퇴근";
+          } else {
+            // 칼퇴 해버렸음
+            text = stringTime + " 칼퇴 성공!";
+          }
+        } else {
+          // 아직 근무 중이다.
+          if (now.isAfter(expectedOff)) {
+            // 야근 중이다.
+            Duration overWorking = now.difference(expectedOff);
+            if (overWorking.inMinutes >= 60) {
+              // 1시간 넘게 야근 중
+              text =
+                  "${overWorking.inHours}시간 ${overWorking.inMinutes % 60}분 더 일하는 중...";
+            } else {
+              // 1시간 미만으로 야근 중
+              text = "${overWorking.inMinutes} 더 일하는 중...";
+            }
+          } else {
+            // 야근이 아니다
+            String stringTime =
+                minutesToString(status.setting.endMinute, toText: true);
+            text = stringTime + " 퇴근";
+          }
+        }
+      } else {
+        // 아직 출근 안했다.
+        text = "출근 준비!";
+      }
+    }
+
     return Text(
-      "오후 10시 42분 퇴근",
+      text,
       style: const TextStyle(
         color: const Color(0xff191919),
         fontWeight: FontWeight.w300,
@@ -65,11 +126,40 @@ class TextIndicator extends StatelessWidget {
   }
 
   Text _buildTitle() {
-    // TODO: 요일별로 응원 문구 다르게 하기
     // TODO: 야근 시 경고 문구 표시하기
-    // TODO: 퇴근 후 상황에 맞는 마무리 문구 표시 하기
     int weekday = DateTime.now().weekday;
+    DateTime now = DateTime.now();
     String ment = encourageMent[weekday - 1];
+    if (status != null) {
+      if (status.isWeekDay) {
+        if (status.startEpoch != null) {
+          // 출근 하긴 했어유
+          int workingHours =
+              status.setting.endMinute - status.setting.startMinute;
+          DateTime started =
+              DateTime.fromMillisecondsSinceEpoch(status.startEpoch);
+          DateTime expectedOff = started.add(Duration(minutes: workingHours));
+          if (status.endEpoch != null) {
+            // 퇴근 해버렸어유
+            DateTime offDate =
+                DateTime.fromMillisecondsSinceEpoch(status.endEpoch);
+            Duration worked = offDate.difference(started);
+            if (worked.inMinutes <= workingHours + 15) {
+              // 15 분 까지는 칼퇴로 쳐줌 ㅋ
+              ment = finishMent[0];
+            } else {
+              ment = finishMent[1];
+            }
+          } else {
+            // 아직 퇴근 못했어유
+            if (now.isAfter(expectedOff)) {
+              // 야근 중이에요
+              ment = alertMent;
+            }
+          }
+        }
+      }
+    }
     return Text(
       ment,
       style: const TextStyle(

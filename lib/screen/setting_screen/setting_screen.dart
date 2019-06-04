@@ -13,6 +13,33 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../model/constant.dart';
 
+int stringTimeToMinutes(List<Item> times) {
+  int timeInMinutes = 0;
+  if (times[0].value == pmAm[1]) timeInMinutes = 60 * 12;
+  if (times[1].value != 12.toString())
+    timeInMinutes += int.parse(times[1].value) * 60;
+
+  timeInMinutes += int.parse(times[2].value);
+  return timeInMinutes;
+}
+
+String minutesToString(int timeInMinutes, {bool toText = false}) {
+  if (timeInMinutes == null) return null;
+  String amPm = timeInMinutes >= 720 ? "오후" : "오전";
+  int hours = ((timeInMinutes % 720) ~/ 60);
+  if (hours == 0) hours = 12;
+
+  int minutes = (timeInMinutes % 60);
+  String sHours = hours < 10 ? "0$hours" : "$hours";
+  String sMinutes = minutes < 10 ? "0$minutes" : "$minutes";
+
+  if (toText) {
+    return "$amPm $sHours시 $sMinutes분";
+  }
+
+  return "$amPm $sHours:$sMinutes";
+}
+
 class SettingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -60,14 +87,30 @@ class SettingDone extends StatelessWidget {
             },
           );
         } else {
-          final bool isAppLoded = ModalRoute.of(context).settings.arguments;
+          final bool isAppLoded =
+              ModalRoute.of(context).settings.arguments as bool;
           if (isAppLoded) {
-            // 유저 시작 state 변경
+            // 유저 출퇴근 state가 변경 되어야 함.
             EasyStatefulBuilder.setState(workingStatusKey, (state) {
-              state.nextState = (state.currentState as WorkingStatus).copyWith(
-                startTimeInMinute: setting.startMinute,
-                setting: setting,
-              );
+              WorkingStatus working = state.currentState;
+              if (working.startEpoch != null) {
+                // 시작 시간을 변경해야 한다.
+                DateTime started =
+                    DateTime.fromMillisecondsSinceEpoch(working.startEpoch);
+
+                int startedMinute = started.hour * 60 + started.minute;
+                int gap = startedMinute - setting.startMinute;
+
+                started = started.subtract(Duration(minutes: gap));
+                state.nextState = working.copyWith(
+                  startEpoch: started.millisecondsSinceEpoch,
+                  setting: setting,
+                );
+              } else {
+                state.nextState = working.copyWith(
+                  setting: setting,
+                );
+              }
             });
           }
           Navigator.of(context).pop();
@@ -205,7 +248,7 @@ class SettingMain extends StatelessWidget {
                 },
               ),
               SizedBox(height: 50.0),
-              JalnanTitle(title: '직군을 선택해주세요.', size: 16.0),
+              JalnanTitle(title: '직군��� 선택해주세요.', size: 16.0),
               SizedBox(height: 16.0),
               SettingSelector(
                 title: jobNum == null ? '나의 직군' : jobs[jobNum].toString(),
@@ -246,29 +289,6 @@ class SettingMain extends StatelessWidget {
         );
       },
     );
-  }
-
-  int stringTimeToMinutes(List<Item> times) {
-    int timeInMinutes = 0;
-    if (times[0].value == pmAm[1]) timeInMinutes = 60 * 12;
-    if (times[1].value != 12.toString())
-      timeInMinutes += int.parse(times[1].value) * 60;
-
-    timeInMinutes += int.parse(times[2].value);
-    return timeInMinutes;
-  }
-
-  String minutesToString(int timeInMinutes) {
-    if (timeInMinutes == null) return null;
-    String amPm = timeInMinutes >= 720 ? "오후" : "오전";
-    int hours = ((timeInMinutes % 720) ~/ 60);
-    if (hours == 0) hours = 12;
-
-    int minutes = (timeInMinutes % 60);
-    String sHours = hours < 10 ? "0$hours" : "$hours";
-    String sMinutes = minutes < 10 ? "0$minutes" : "$minutes";
-
-    return "$amPm $sHours:$sMinutes";
   }
 }
 

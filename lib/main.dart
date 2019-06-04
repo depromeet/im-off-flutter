@@ -55,7 +55,10 @@ class IamOff extends StatelessWidget {
                 builder: (context) {
                   return SettingScreen();
                 },
+                settings: route,
               );
+            default:
+              print("Should not be here");
           }
         },
       ),
@@ -77,47 +80,73 @@ class _IamOffMainState extends State<IamOffMain> {
     initialPage: 0,
   );
 
+  Timer workingTimer;
+
   @override
   void initState() {
     super.initState();
-    this._loadOffState();
+
+    this._loadWorkingStatus();
+
+    // 1분 마다 출퇴근 상태 확인
+    workingTimer =
+        Timer.periodic(Duration(minutes: 1), (_) => this._loadWorkingStatus());
   }
 
   @override
   void dispose() {
     navigationStream.close();
+    workingTimer.cancel();
     super.dispose();
   }
 
-  void _loadOffState() async {
+  void _loadWorkingStatus() async {
     DateTime now = DateTime.now();
-    if (now.weekday == DateTime.saturday || now.weekday == DateTime.sunday) {
-      // 주말인 경우
-      WorkingStatus stat = WorkingStatus(isWeekDay: false);
-      EasyStatefulBuilder.setState(workingStatusKey, (state) {
-        state.nextState = stat;
-      });
-    } else {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String workingStatusJson = prefs.getString(workingStatusKey);
-      String userSettingJson = prefs.getString(settingsKey);
-      UserSetting setting = UserSetting.fromJson(jsonDecode(userSettingJson));
-      WorkingStatus stat = WorkingStatus();
-      if (workingStatusJson != null) {
-        stat = WorkingStatus.fromJson(jsonDecode(workingStatusJson));
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String workingStatusJson = prefs.getString(workingStatusKey);
+    String userSettingJson = prefs.getString(settingsKey);
+    UserSetting setting = UserSetting.fromJson(jsonDecode(userSettingJson));
+    WorkingStatus stat = WorkingStatus();
+
+    if (workingStatusJson != null) {
+      stat = WorkingStatus.fromJson(jsonDecode(workingStatusJson));
+    }
+    stat.setting = setting;
+
+    if (stat.endEpoch != null) {
+      if (DateTime.fromMillisecondsSinceEpoch(stat.startEpoch).isBefore(now)) {
+        // 전날 출퇴근 기록이 있고, 다음날이 시작 됐을 경우 초기화
+        stat.endEpoch = null;
+        stat.startEpoch = null;
       }
-      stat.setting = setting;
-      // 주중인데 일을 시작 안했거나, 아직 퇴근 안했을 경우
-      if (stat.startTimeInMinute == null || stat.endTimeInMinute == null) {
+    }
+
+    // 아직 출근 기록이 없을 경우
+    if (stat.startEpoch == null) {
+      if (now.weekday == DateTime.saturday || now.weekday == DateTime.sunday) {
+        // 주말 인 경우
+        stat.isWeekDay = false;
+      } else {
+        stat.isWeekDay = true;
         if (now.minute + now.hour * 60 >= setting.startMinute) {
-          stat.startTimeInMinute = setting.startMinute;
+          // 출근 시간이 지난 경우, 자동으로 출근 시간 체크
+          DateTime startDate = DateTime(
+            now.year,
+            now.month,
+            now.day,
+            (setting.startMinute ~/ 60),
+            setting.startMinute % 60,
+          );
+          stat.startEpoch = startDate.millisecondsSinceEpoch;
+        } else {
+          // 출근 시간이 안 지난 경우, 아직 출근 준비중
         }
       }
-      prefs.setString(workingStatusKey, jsonEncode(stat));
-      EasyStatefulBuilder.setState(workingStatusKey, (state) {
-        state.nextState = stat;
-      });
     }
+    stat.saveStatus();
+    EasyStatefulBuilder.setState(workingStatusKey, (state) {
+      state.nextState = stat;
+    });
   }
 
   @override
