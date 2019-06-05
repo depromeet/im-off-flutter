@@ -105,7 +105,10 @@ class _IamOffMainState extends State<IamOffMain> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String workingStatusJson = prefs.getString(workingStatusKey);
     String userSettingJson = prefs.getString(settingsKey);
-    UserSetting setting = UserSetting.fromJson(jsonDecode(userSettingJson));
+    UserSetting setting = UserSetting();
+    if (userSettingJson != null) {
+      setting = UserSetting.fromJson(jsonDecode(userSettingJson));
+    }
     WorkingStatus stat = WorkingStatus();
 
     if (workingStatusJson != null) {

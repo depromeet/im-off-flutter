@@ -158,9 +158,9 @@ class SettingMain extends StatelessWidget {
 
         List<String> splitStart = startMinuteInString
             ?.replaceAll(RegExp(':'), ' ')
-            .split(RegExp(' '));
+            ?.split(RegExp(' '));
         List<String> splitEnd =
-            endMinuteInString?.replaceAll(RegExp(':'), ' ').split(RegExp(' '));
+            endMinuteInString?.replaceAll(RegExp(':'), ' ')?.split(RegExp(' '));
 
         List<ItemList> timeItemList = [
           ItemList(
@@ -220,7 +220,7 @@ class SettingMain extends StatelessWidget {
               SizedBox(height: 6.0),
               SettingSelector(
                 title: endMinuteInString ?? "퇴근 시간",
-                itemFields: startMinuteInString == null
+                itemFields: endMinuteInString == null
                     ? timeItemList
                     : timeItemList
                         .asMap()
@@ -248,7 +248,7 @@ class SettingMain extends StatelessWidget {
                 },
               ),
               SizedBox(height: 50.0),
-              JalnanTitle(title: '직군��� 선택해주세요.', size: 16.0),
+              JalnanTitle(title: '직군을 선택해주세요.', size: 16.0),
               SizedBox(height: 16.0),
               SettingSelector(
                 title: jobNum == null ? '나의 직군' : jobs[jobNum].toString(),
