@@ -97,7 +97,7 @@ class TextIndicator extends StatelessWidget {
                   "${overWorking.inHours}시간 ${overWorking.inMinutes % 60}분 더 일하는 중...";
             } else {
               // 1시간 미만으로 야근 중
-              text = "${overWorking.inMinutes} 더 일하는 중...";
+              text = "${overWorking.inMinutes}분 더 일하는 중...";
             }
           } else {
             // 야근이 아니다

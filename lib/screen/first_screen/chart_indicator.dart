@@ -120,7 +120,7 @@ class ChartClock extends CustomPainter {
 
     Rect rect = Rect.fromCircle(
       center: center,
-      radius: size.height / 2.0,
+      radius: (size.height + 2) / 2.0,
     );
     canvas.drawArc(rect, start, gap, true, Paint()..color = color);
   }

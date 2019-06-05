@@ -90,7 +90,7 @@ class _IamOffMainState extends State<IamOffMain> {
 
     // 1분 마다 출퇴근 상태 확인
     workingTimer =
-        Timer.periodic(Duration(minutes: 1), (_) => this._loadWorkingStatus());
+        Timer.periodic(Duration(seconds: 40), (_) => this._loadWorkingStatus());
   }
 
   @override

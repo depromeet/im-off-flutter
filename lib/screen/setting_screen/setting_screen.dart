@@ -66,10 +66,11 @@ class SettingDone extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         UserSetting setting =
-            BlocProvider.of<SettingBloc>(context).userSettings;
+            BlocProvider.of<SettingBloc>(context).currentState.settings;
         if (setting?.jobNum == null ||
             setting?.startMinute == null ||
             setting?.endMinute == null) {
+          // TODO: 시작 시간 - 끝 시간이 오후 - 오전 인 경우 고려가 필요함.
           showCupertinoDialog(
             context: context,
             builder: (context) {
@@ -105,7 +106,7 @@ class SettingDone extends StatelessWidget {
                 state.nextState = working.copyWith(
                   startEpoch: started.millisecondsSinceEpoch,
                   setting: setting,
-                );
+                )..saveStatus();
               } else {
                 state.nextState = working.copyWith(
                   setting: setting,
@@ -147,6 +148,7 @@ class SettingMain extends StatelessWidget {
 
     return BlocBuilder(
       bloc: _settingBloc,
+      condition: (_old, _new) => true,
       builder: (context, SettingData data) {
         UserSetting _userSetting = data.settings;
         int jobNum = _userSetting?.jobNum;
