@@ -1,12 +1,51 @@
 import 'dart:async';
 
+import 'package:easy_stateful_builder/easy_stateful_builder.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:im_off/bloc/setting_bloc.dart';
+import 'package:im_off/model/constant.dart';
+import 'package:im_off/model/user_setting.dart';
+import 'package:im_off/model/working_status.dart';
 import 'package:provider/provider.dart';
 import 'package:im_off/bloc/navigation_bloc.dart';
 
 import 'off_card.dart';
 
-class SecondScreen extends StatelessWidget {
+const List<String> weekday = [
+  "기록 없음",
+  "월요일",
+  "화요일",
+  "수요일",
+  "목요일",
+  "금요일",
+  "토요일",
+  "일요일",
+];
+
+const List<String> engWeekday = [
+  "",
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat",
+  "Sun",
+];
+
+class SecondScreen extends StatefulWidget {
+  @override
+  _SecondScreenState createState() => _SecondScreenState();
+}
+
+class _SecondScreenState extends State<SecondScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WorkingStatus.getHistory();
+  }
+
   @override
   Widget build(BuildContext context) {
     StreamController navController =
@@ -24,44 +63,102 @@ class SecondScreen extends StatelessWidget {
     );
   }
 
-  Expanded _buildHistory() {
-    return Expanded(
-      child: ListView(
-        padding: EdgeInsets.only(top: 4.0),
-        physics: ClampingScrollPhysics(),
-        children: <Widget>[
-          Center(
-            child: OffCard(
-              title: "이번주 근무 시간",
-              chartColor: Color(0xff25f2ff),
-              criteria: "/52시간",
+  Widget _buildHistory() {
+    return EasyStatefulBuilder(
+        identifier: workingHistoryKey,
+        initialValue: null,
+        keepAlive: true,
+        builder: (context, WorkingHistory snapshot) {
+          UserSetting setting =
+              BlocProvider.of<SettingBloc>(context).currentState.settings;
+          String weekWorkingHours;
+          String avgEndMinute;
+          String getOffCriteria = "/18시 00분";
+          int minWorkingDay = 0;
+          int maxWorkingDay = 0;
+          int workingStartMinute = 0;
+          int workingGap = 0;
+          if (setting?.startMinute != null) {
+            workingStartMinute = setting.startMinute;
+          }
+          if (snapshot != null) {
+            minWorkingDay = snapshot.fastOffWeekday;
+            maxWorkingDay = snapshot.extraWorkingWeekday;
+            if (snapshot.workingHoursAWeek == 0) {
+              weekWorkingHours = "기록 없음";
+            } else {
+              weekWorkingHours = "${snapshot.workingHoursAWeek}시간 ";
+            }
+            if (snapshot.avgOffTimeInMinute == 0) {
+              avgEndMinute = "기록 없음";
+            } else {
+              int hour = snapshot.avgOffTimeInMinute ~/ 60;
+              int minute = snapshot.avgOffTimeInMinute % 60;
+              avgEndMinute = ((hour < 10) ? "0" : "") +
+                  "$hour시 " +
+                  ((minute < 10) ? "0" : "") +
+                  "$minute분 ";
+              workingGap = snapshot.avgOffTimeInMinute - workingStartMinute;
+            }
+          }
+          if (setting?.endMinute != null) {
+            int hour = setting.endMinute ~/ 60;
+            int minute = setting.endMinute % 60;
+            getOffCriteria = "/" +
+                ((hour < 10) ? "0" : "") +
+                "$hour시 " +
+                ((minute < 10) ? "0" : "") +
+                "$minute분";
+          }
+          return Expanded(
+            child: ListView(
+              padding: EdgeInsets.only(top: 4.0),
+              physics: ClampingScrollPhysics(),
+              children: <Widget>[
+                Center(
+                  child: OffCard(
+                    title: "이번주 근무 시간",
+                    chartColor: Color(0xff25f2ff),
+                    statistic: weekWorkingHours ?? "계산중 ",
+                    criteria: weekWorkingHours == null ? "" : "/52시간",
+                    startMinute: 0,
+                    gapMinute: 720 * ((snapshot?.workingHoursAWeek) ?? 0) ~/ 52,
+                  ),
+                ),
+                Center(
+                  child: OffCard(
+                    title: "평균 퇴근 시간",
+                    chartColor: Color(0xff3a2eff),
+                    statistic: avgEndMinute ?? "계산중 ",
+                    criteria: avgEndMinute == null ? "" : getOffCriteria,
+                    startMinute: workingStartMinute,
+                    gapMinute: workingGap,
+                  ),
+                ),
+                Center(
+                  child: OffCard(
+                    title: "주로 칼퇴하는 요일",
+                    chartColor: Color(0xff25f2ff),
+                    startMinute: 0,
+                    gapMinute: 720,
+                    statistic: weekday[minWorkingDay],
+                    chartTitle: engWeekday[minWorkingDay],
+                  ),
+                ),
+                Center(
+                  child: OffCard(
+                    title: "주로 야근하는 요일",
+                    chartColor: Color(0xffff295b),
+                    startMinute: 0,
+                    gapMinute: 720,
+                    statistic: weekday[maxWorkingDay],
+                    chartTitle: engWeekday[maxWorkingDay],
+                  ),
+                ),
+              ],
             ),
-          ),
-          Center(
-            child: OffCard(
-              title: "평균 퇴근 시간",
-              chartColor: Color(0xff3a2eff),
-            ),
-          ),
-          Center(
-            child: OffCard(
-              title: "주로 칼퇴하는 요일",
-              chartColor: Color(0xff25f2ff),
-              startMinute: 0,
-              gapMinute: 720,
-            ),
-          ),
-          Center(
-            child: OffCard(
-              title: "주로 야근하는 요일",
-              chartColor: Color(0xffff295b),
-              startMinute: 0,
-              gapMinute: 720,
-            ),
-          ),
-        ],
-      ),
-    );
+          );
+        });
   }
 
   Padding _buildTitle(StreamController navController) {

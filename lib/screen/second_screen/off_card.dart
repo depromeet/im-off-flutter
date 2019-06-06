@@ -73,7 +73,7 @@ class OffCard extends StatelessWidget {
                           fontStyle: FontStyle.normal,
                           fontSize: 24.0,
                         ),
-                        text: this.statistic + " ",
+                        text: this.statistic,
                       ),
                       new TextSpan(
                         style: const TextStyle(
@@ -101,6 +101,18 @@ class OffCard extends StatelessWidget {
                   child: Container(
                     width: 64.0,
                     height: 64.0,
+                    child: Center(
+                      child: Text(
+                        chartTitle ?? "",
+                        style: TextStyle(
+                          fontFamily: "SpoqaHanSans",
+                          color: Colors.white,
+                          fontSize: 18.0,
+                          letterSpacing: 0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],

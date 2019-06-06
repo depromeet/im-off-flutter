@@ -127,6 +127,7 @@ class BlueButton extends StatelessWidget {
       WorkingStatus status = state.currentState as WorkingStatus;
       status.endEpoch = DateTime.now().millisecondsSinceEpoch;
       status.saveStatus();
+      status.finish();
       state.nextState = status;
     });
   }

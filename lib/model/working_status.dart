@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:easy_stateful_builder/easy_stateful_builder.dart';
 import 'package:im_off/model/constant.dart';
 import 'package:im_off/model/user_setting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,18 +58,32 @@ class WorkingStatus {
   }
 
   static Future<WorkingHistory> getHistory() async {
+    SharedPreferences refs = await SharedPreferences.getInstance();
+    String settingString = refs.getString(settingsKey);
+    UserSetting setting = UserSetting();
+
+    if (settingString != null) {
+      setting = UserSetting.fromJson(jsonDecode(settingString));
+    }
+
     List<WorkingStatus> history = List<WorkingStatus>();
 
     await for (WorkingStatus status in _getWorkHistory()) {
       history.add(status);
     }
 
-    return WorkingHistory(
+    WorkingHistory statistic = WorkingHistory(
       workingHoursAWeek: await _getWorkedHours(history),
       avgOffTimeInMinute: await _getAvgEndMinutes(history),
-      extraWorkingWeekday: await _getExtraWorkingWeekday(history),
-      fastOffWeekday: await _getFastOffWeekday(history),
+      fastOffWeekday: await _getFastOffWeekday(history, setting),
+      extraWorkingWeekday: await _getExtraWorkingWeekday(history, setting),
     );
+
+    EasyStatefulBuilder.setState(workingHistoryKey, (state) {
+      state.nextState = statistic;
+    });
+
+    return statistic;
   }
 }
 
@@ -93,8 +108,8 @@ Stream<WorkingStatus> _getWorkHistory() async* {
 class WorkingHistory {
   int workingHoursAWeek;
   int avgOffTimeInMinute;
-  String fastOffWeekday;
-  String extraWorkingWeekday;
+  int fastOffWeekday;
+  int extraWorkingWeekday;
 
   WorkingHistory({
     this.avgOffTimeInMinute,
@@ -132,19 +147,10 @@ Future<int> _getAvgEndMinutes(List<WorkingStatus> history) async {
   return avgMinute;
 }
 
-Future<String> _getFastOffWeekday(List<WorkingStatus> history) async {
+Future<int> _getFastOffWeekday(
+    List<WorkingStatus> history, UserSetting setting) async {
   List<int> totalMinutes = List.generate(10, (i) => 0);
   List<int> workCount = List.generate(10, (i) => 0);
-  List<String> weekday = [
-    "기록 없음",
-    "월요일",
-    "화요일",
-    "수요일",
-    "목요일",
-    "금요일",
-    "토요일",
-    "일요일",
-  ];
 
   for (WorkingStatus status in history) {
     DateTime start = DateTime.fromMillisecondsSinceEpoch(status.startEpoch);
@@ -165,22 +171,13 @@ Future<String> _getFastOffWeekday(List<WorkingStatus> history) async {
       }
     }
   }
-  return weekday[minWeek];
+  return minWeek;
 }
 
-Future<String> _getExtraWorkingWeekday(List<WorkingStatus> history) async {
+Future<int> _getExtraWorkingWeekday(
+    List<WorkingStatus> history, UserSetting setting) async {
   List<int> totalMinutes = List.generate(10, (i) => 0);
   List<int> workCount = List.generate(10, (i) => 0);
-  List<String> weekday = [
-    "기록 없음",
-    "월요일",
-    "화요일",
-    "수요일",
-    "목요일",
-    "금요일",
-    "토요일",
-    "일요일",
-  ];
 
   for (WorkingStatus status in history) {
     DateTime start = DateTime.fromMillisecondsSinceEpoch(status.startEpoch);
@@ -201,5 +198,5 @@ Future<String> _getExtraWorkingWeekday(List<WorkingStatus> history) async {
       }
     }
   }
-  return weekday[maxWeek];
+  return maxWeek;
 }
