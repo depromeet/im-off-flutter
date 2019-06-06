@@ -104,7 +104,8 @@ class SettingDone extends StatelessWidget {
 
                 started = started.subtract(Duration(minutes: gap));
                 if (started.millisecondsSinceEpoch >
-                    DateTime.now().millisecondsSinceEpoch) {
+                        DateTime.now().millisecondsSinceEpoch &&
+                    working.endEpoch == null) {
                   // 아직 출근할 시간이 아니다.
                   started = null;
                 }

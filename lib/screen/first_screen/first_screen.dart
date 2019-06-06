@@ -31,14 +31,12 @@ class FirstScreen extends StatelessWidget {
         identifier: workingStatusKey,
         builder: (context, WorkingStatus status) {
           ButtonType buttonType = ButtonType.getOff;
-          if (status?.endEpoch != null) {
+          if (status?.endEpoch != null && status?.startEpoch != null) {
             buttonType = ButtonType.share;
           } else if (status?.startEpoch == null) {
-            print("출근 해야 됨");
             buttonType = ButtonType.gotoWork;
           } else {
             print(DateTime.fromMillisecondsSinceEpoch(status.startEpoch));
-            print("일하는 중");
           }
 
           return Stack(

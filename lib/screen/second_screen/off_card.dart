@@ -2,6 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 
 class OffCard extends StatelessWidget {
+  OffCard({
+    this.chartTitle,
+    this.desc,
+    this.gapMinute,
+    this.startMinute,
+    this.title,
+  });
+
+  String title;
+  String desc;
+  int startMinute;
+  int gapMinute;
+  String chartTitle;
+
   @override
   Widget build(BuildContext context) {
     return Padding(

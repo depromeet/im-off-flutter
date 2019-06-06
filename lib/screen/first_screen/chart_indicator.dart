@@ -58,10 +58,10 @@ class _ChartIndicatorState extends State<ChartIndicator>
     WorkingStatus status =
         EasyStatefulBuilder.getState(workingStatusKey).currentState;
     WorkingStatusType workingType;
-    int startMinutes;
-    int gapMinutes;
+    int startMinutes = 0;
+    int gapMinutes = 0;
 
-    if (status?.endEpoch != null) {
+    if (status?.endEpoch != null && status?.startEpoch != null) {
       //퇴근 했다.
       int gotOffTime = status.endEpoch;
       DateTime started = DateTime.fromMillisecondsSinceEpoch(status.startEpoch);

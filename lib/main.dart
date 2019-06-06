@@ -116,7 +116,7 @@ class _IamOffMainState extends State<IamOffMain> {
     }
     stat.setting = setting;
 
-    if (stat.endEpoch != null) {
+    if (stat.endEpoch != null && stat.startEpoch != null) {
       DateTime started = DateTime.fromMillisecondsSinceEpoch(stat.startEpoch);
       if (started.isBefore(now) && started.day != now.day) {
         // 전날 출퇴근 기록이 있고, 다음날이 시작 됐을 경우 초기화
