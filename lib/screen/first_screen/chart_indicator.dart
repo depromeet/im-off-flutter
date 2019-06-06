@@ -189,6 +189,11 @@ class ChartClock extends CustomPainter {
       radius: (size.height + 2) / 2.0,
     );
     canvas.drawArc(rect, start, gap, true, Paint()..color = color);
+    if (gap > 2 * math.pi && color.value == 0xffff295b) {
+      gap -= 2 * math.pi;
+      canvas.drawArc(
+          rect, start, gap, true, Paint()..color = Color(0xffd4123f));
+    }
   }
 
   @override
