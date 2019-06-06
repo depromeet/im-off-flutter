@@ -1,11 +1,16 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:im_off/model/constant.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_stateful_builder/easy_stateful_builder.dart';
 
 import 'package:im_off/bloc/navigation_bloc.dart';
 import 'package:im_off/screen/first_screen/chart_indicator.dart';
+import 'package:screenshot/screenshot.dart';
 
 import 'text_indicator.dart';
 import '../../model/working_status.dart';
@@ -89,7 +94,7 @@ class BlueButton extends StatelessWidget {
         break;
     }
     return GestureDetector(
-      onTap: buttonAction,
+      onTap: () => buttonAction(context),
       child: Container(
         width: 90,
         height: 90,
@@ -113,7 +118,7 @@ class BlueButton extends StatelessWidget {
     );
   }
 
-  void _gotoWork() {
+  void _gotoWork(BuildContext context) async {
     EasyStatefulBuilder.setState(workingStatusKey, (state) {
       WorkingStatus status = state.currentState as WorkingStatus;
       status.startEpoch = DateTime.now().millisecondsSinceEpoch;
@@ -122,7 +127,7 @@ class BlueButton extends StatelessWidget {
     });
   }
 
-  void _getOff() {
+  void _getOff(BuildContext context) async {
     EasyStatefulBuilder.setState(workingStatusKey, (state) {
       WorkingStatus status = state.currentState as WorkingStatus;
       status.endEpoch = DateTime.now().millisecondsSinceEpoch;
@@ -132,7 +137,12 @@ class BlueButton extends StatelessWidget {
     });
   }
 
-  void _share() {
+  void _share(BuildContext context) async {
     // TODO : 스크린샷 찍어서 공유하기
+    ScreenshotController screenshotController =
+        Provider.of<ScreenshotController>(context);
+    File _imageFile = await screenshotController.capture(pixelRatio: 3.0);
+    await Share.file('칼퇴요정', '칼퇴기록.png',
+        Uint8List.fromList(await _imageFile.readAsBytes()), 'image/png');
   }
 }

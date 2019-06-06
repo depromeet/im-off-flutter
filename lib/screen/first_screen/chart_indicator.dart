@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:math' as math;
 
 import 'package:im_off/bloc/setting_bloc.dart';
+import 'package:im_off/model/user_setting.dart';
 import 'package:im_off/model/working_status.dart';
 import 'package:im_off/model/constant.dart';
 
@@ -60,6 +61,8 @@ class _ChartIndicatorState extends State<ChartIndicator>
     WorkingStatusType workingType;
     int startMinutes = 0;
     int gapMinutes = 0;
+    String clockTimer = "${now.hour}:${now.minute}";
+    UserSetting setting = _settingBloc.currentState.settings;
 
     if (status?.endEpoch != null && status?.startEpoch != null) {
       //퇴근 했다.
@@ -67,6 +70,7 @@ class _ChartIndicatorState extends State<ChartIndicator>
       DateTime started = DateTime.fromMillisecondsSinceEpoch(status.startEpoch);
       DateTime expected = DateTime(started.year, started.month, started.day,
           status.setting.endMinute ~/ 60, status.setting.endMinute % 60);
+      DateTime gotOff = DateTime.fromMillisecondsSinceEpoch(gotOffTime);
       expected = expected.add(Duration(minutes: 15));
 
       outlineAsset = "images/circle_gradation_blue.png";
@@ -74,38 +78,59 @@ class _ChartIndicatorState extends State<ChartIndicator>
       arcColor = Color(0xff25f2ff);
 
       startMinutes = started.minute + started.hour * 60;
-      gapMinutes = DateTime.fromMillisecondsSinceEpoch(gotOffTime)
-          .difference(started)
-          .inMinutes;
+      gapMinutes = gotOff.difference(started).inMinutes;
       if (gotOffTime >= expected.millisecondsSinceEpoch) {
         // 야근 했다.
         outlineAsset = 'images/circle_gradation_red.png';
         workingType = WorkingStatusType.failed;
         arcColor = Color(0xffff295b);
       }
+
+      clockTimer = (gotOff.hour < 10 ? "0" : "") +
+          "${gotOff.hour}:" +
+          (gotOff.minute < 10 ? "0" : "") +
+          "${gotOff.minute}";
     } else if (status?.startEpoch != null) {
       // 출근 했다.
       DateTime started = DateTime.fromMillisecondsSinceEpoch(status.startEpoch);
       DateTime expected = DateTime(started.year, started.month, started.day,
           status.setting.endMinute ~/ 60, status.setting.endMinute % 60);
-      expected = expected.add(Duration(minutes: 15));
+      // expected = expected.add(Duration(minutes: 15));
       startMinutes = started.minute + started.hour * 60;
       gapMinutes = DateTime.now().difference(started).inMinutes;
+      clockTimer = "";
+      int clockHour = gapMinutes ~/ 60;
+      int clockMinute = gapMinutes % 60;
+
       if (now.millisecondsSinceEpoch > expected.millisecondsSinceEpoch) {
         // 야근 중이다.
+        startMinutes = expected.hour * 60 + expected.minute;
+        gapMinutes = DateTime.now().difference(expected).inMinutes;
+        print("gap: $gapMinutes");
         outlineAsset = 'images/circle_gradation_red.png';
         workingType = WorkingStatusType.extraWork;
         arcColor = Color(0xffff295b);
+        clockTimer = "+ ";
+        clockHour = gapMinutes ~/ 60;
+        clockMinute = gapMinutes % 60;
       } else {
         outlineAsset = "images/circle_gradation_blue.png";
         workingType = WorkingStatusType.working;
         arcColor = Color(0xff25f2ff);
+        int remainMinute = expected.difference(now).inMinutes;
+        clockHour = remainMinute ~/ 60;
+        clockMinute = remainMinute % 60;
       }
+      clockTimer += (clockHour < 10 ? "0" : "") +
+          "$clockHour:" +
+          (clockMinute < 10 ? "0" : "") +
+          "$clockMinute";
     } else {
       // 출근 안했다.
       outlineAsset = "images/circle_gradation_gray.png";
       workingType = WorkingStatusType.rest;
       arcColor = Colors.transparent;
+      clockTimer = "";
     }
     return SizedBox(
       width: 304.0,
@@ -124,7 +149,7 @@ class _ChartIndicatorState extends State<ChartIndicator>
           ),
           Center(
             child: Text(
-              "${now.hour}:${now.minute}",
+              clockTimer,
               style: const TextStyle(
                 color: const Color(0xff191919),
                 fontWeight: FontWeight.w400,

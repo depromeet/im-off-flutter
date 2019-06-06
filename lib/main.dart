@@ -10,6 +10,7 @@ import 'package:im_off/model/working_status.dart';
 import 'package:provider/provider.dart';
 
 import 'package:im_off/screen/screen.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'bloc/navigation_bloc.dart';
@@ -79,9 +80,17 @@ class _IamOffMainState extends State<IamOffMain> {
     keepPage: true,
     initialPage: 0,
   );
+  static final ScreenshotController screenshotController =
+      ScreenshotController();
 
   final List<Widget> screens = [
-    FirstScreen(),
+    Screenshot(
+      controller: screenshotController,
+      child: Provider<ScreenshotController>.value(
+        value: screenshotController,
+        child: FirstScreen(),
+      ),
+    ),
     SecondScreen(),
   ];
 
