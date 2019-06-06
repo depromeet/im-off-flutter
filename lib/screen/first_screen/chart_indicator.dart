@@ -58,6 +58,8 @@ class _ChartIndicatorState extends State<ChartIndicator>
     WorkingStatus status =
         EasyStatefulBuilder.getState(workingStatusKey).currentState;
     WorkingStatusType workingType;
+    int startMinutes;
+    int gapMinutes;
 
     if (status?.endEpoch != null) {
       //퇴근 했다.
@@ -71,6 +73,10 @@ class _ChartIndicatorState extends State<ChartIndicator>
       workingType = WorkingStatusType.success;
       arcColor = Color(0xff25f2ff);
 
+      startMinutes = started.minute + started.hour * 60;
+      gapMinutes = DateTime.fromMillisecondsSinceEpoch(gotOffTime)
+          .difference(started)
+          .inMinutes;
       if (gotOffTime >= expected.millisecondsSinceEpoch) {
         // 야근 했다.
         outlineAsset = 'images/circle_gradation_red.png';
@@ -83,6 +89,8 @@ class _ChartIndicatorState extends State<ChartIndicator>
       DateTime expected = DateTime(started.year, started.month, started.day,
           status.setting.endMinute ~/ 60, status.setting.endMinute % 60);
       expected = expected.add(Duration(minutes: 15));
+      startMinutes = started.minute + started.hour * 60;
+      gapMinutes = DateTime.now().difference(started).inMinutes;
       if (now.millisecondsSinceEpoch > expected.millisecondsSinceEpoch) {
         // 야근 중이다.
         outlineAsset = 'images/circle_gradation_red.png';
@@ -108,7 +116,12 @@ class _ChartIndicatorState extends State<ChartIndicator>
           OutlineAnimator(
             asset: outlineAsset,
           ),
-          ..._buildTimeSector(workingType, arcColor),
+          ..._buildTimeSector(
+            workingType,
+            arcColor,
+            startMin: startMinutes,
+            gapMin: gapMinutes,
+          ),
           Center(
             child: Text(
               "${now.hour}:${now.minute}",
@@ -126,10 +139,12 @@ class _ChartIndicatorState extends State<ChartIndicator>
     );
   }
 
-  List<Widget> _buildTimeSector(WorkingStatusType type, Color arcColor) {
-    final DateTime date = DateTime.now();
-    final int gapMin = Duration(minutes: 201).inMinutes;
-    final int startMin = (date.hour * 60 + date.minute) % 720;
+  List<Widget> _buildTimeSector(
+    WorkingStatusType type,
+    Color arcColor, {
+    int startMin = 0,
+    int gapMin = 0,
+  }) {
     return [
       if (type != WorkingStatusType.rest)
         CustomPaint(
