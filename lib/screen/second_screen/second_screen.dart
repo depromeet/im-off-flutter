@@ -84,13 +84,9 @@ class _SecondScreenState extends State<SecondScreen> {
           if (snapshot != null) {
             minWorkingDay = snapshot.fastOffWeekday;
             maxWorkingDay = snapshot.extraWorkingWeekday;
-            if (snapshot.workingHoursAWeek == 0) {
-              weekWorkingHours = "기록 없음";
-            } else {
-              weekWorkingHours = "${snapshot.workingHoursAWeek}시간 ";
-            }
+            weekWorkingHours = "${snapshot.workingHoursAWeek}시간 ";
             if (snapshot.avgOffTimeInMinute == 0) {
-              avgEndMinute = "기록 없음";
+              avgEndMinute = "기록 없음 ";
             } else {
               int hour = snapshot.avgOffTimeInMinute ~/ 60;
               int minute = snapshot.avgOffTimeInMinute % 60;
