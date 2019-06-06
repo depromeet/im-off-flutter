@@ -11,6 +11,7 @@ class OffCard extends StatelessWidget {
     this.gapMinute,
     this.startMinute,
     this.chartTitle,
+    this.chartColor = const Color(0xffff295b),
   });
 
   String title;
@@ -19,6 +20,7 @@ class OffCard extends StatelessWidget {
   int startMinute;
   int gapMinute;
   String chartTitle;
+  Color chartColor;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +73,7 @@ class OffCard extends StatelessWidget {
                           fontStyle: FontStyle.normal,
                           fontSize: 24.0,
                         ),
-                        text: this.statistic,
+                        text: this.statistic + " ",
                       ),
                       new TextSpan(
                         style: const TextStyle(
@@ -90,7 +92,7 @@ class OffCard extends StatelessWidget {
             ),
             CustomPaint(
               painter: ChartClock(
-                color: Colors.red,
+                color: this.chartColor,
                 startMin: 0,
                 gapMin: 100,
               ),
