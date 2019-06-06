@@ -29,7 +29,18 @@ class FirstScreen extends StatelessWidget {
       ),
       child: EasyStatefulBuilder(
         identifier: workingStatusKey,
-        builder: (context, status) {
+        builder: (context, WorkingStatus status) {
+          ButtonType buttonType = ButtonType.getOff;
+          if (status?.endEpoch != null) {
+            buttonType = ButtonType.share;
+          } else if (status?.startEpoch == null) {
+            print("출근 해야 됨");
+            buttonType = ButtonType.gotoWork;
+          } else {
+            print(DateTime.fromMillisecondsSinceEpoch(status.startEpoch));
+            print("일하는 중");
+          }
+
           return Stack(
             children: <Widget>[
               TextIndicator(
@@ -43,7 +54,7 @@ class FirstScreen extends StatelessWidget {
               Positioned(
                 bottom: 113.0,
                 left: 220.0,
-                child: BlueButton(status: status),
+                child: BlueButton(type: buttonType),
               ),
             ],
           );
@@ -53,14 +64,33 @@ class FirstScreen extends StatelessWidget {
   }
 }
 
+enum ButtonType { gotoWork, getOff, share }
+
 class BlueButton extends StatelessWidget {
   BlueButton({
-    this.status,
+    @required this.type,
   });
-  final WorkingStatus status;
+  final ButtonType type;
   @override
   Widget build(BuildContext context) {
+    Function buttonAction;
+    String title;
+    switch (this.type) {
+      case ButtonType.gotoWork:
+        buttonAction = this._gotoWork;
+        title = "출근";
+        break;
+      case ButtonType.getOff:
+        buttonAction = this._getOff;
+        title = "퇴근";
+        break;
+      case ButtonType.share:
+        buttonAction = this._share;
+        title = "공유";
+        break;
+    }
     return GestureDetector(
+      onTap: buttonAction,
       child: Container(
         width: 90,
         height: 90,
@@ -70,7 +100,7 @@ class BlueButton extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            "퇴근",
+            title,
             style: const TextStyle(
               color: const Color(0xffffffff),
               fontWeight: FontWeight.w700,
@@ -82,5 +112,27 @@ class BlueButton extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _gotoWork() {
+    EasyStatefulBuilder.setState(workingStatusKey, (state) {
+      WorkingStatus status = state.currentState as WorkingStatus;
+      status.startEpoch = DateTime.now().millisecondsSinceEpoch;
+      status.saveStatus();
+      state.nextState = status;
+    });
+  }
+
+  void _getOff() {
+    EasyStatefulBuilder.setState(workingStatusKey, (state) {
+      WorkingStatus status = state.currentState as WorkingStatus;
+      status.endEpoch = DateTime.now().millisecondsSinceEpoch;
+      status.saveStatus();
+      state.nextState = status;
+    });
+  }
+
+  void _share() {
+    // TODO : 스크린샷 찍어서 공유하기
   }
 }

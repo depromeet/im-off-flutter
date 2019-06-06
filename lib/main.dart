@@ -90,7 +90,7 @@ class _IamOffMainState extends State<IamOffMain> {
 
     // 1분 마다 출퇴근 상태 확인
     workingTimer =
-        Timer.periodic(Duration(seconds: 40), (_) => this._loadWorkingStatus());
+        Timer.periodic(Duration(seconds: 1), (_) => this._loadWorkingStatus());
   }
 
   @override
@@ -106,10 +106,10 @@ class _IamOffMainState extends State<IamOffMain> {
     String workingStatusJson = prefs.getString(workingStatusKey);
     String userSettingJson = prefs.getString(settingsKey);
     UserSetting setting = UserSetting();
+    WorkingStatus stat = WorkingStatus();
     if (userSettingJson != null) {
       setting = UserSetting.fromJson(jsonDecode(userSettingJson));
     }
-    WorkingStatus stat = WorkingStatus();
 
     if (workingStatusJson != null) {
       stat = WorkingStatus.fromJson(jsonDecode(workingStatusJson));
@@ -117,7 +117,8 @@ class _IamOffMainState extends State<IamOffMain> {
     stat.setting = setting;
 
     if (stat.endEpoch != null) {
-      if (DateTime.fromMillisecondsSinceEpoch(stat.startEpoch).isBefore(now)) {
+      DateTime started = DateTime.fromMillisecondsSinceEpoch(stat.startEpoch);
+      if (started.isBefore(now) && started.day != now.day) {
         // 전날 출퇴근 기록이 있고, 다음날이 시작 됐을 경우 초기화
         stat.endEpoch = null;
         stat.startEpoch = null;
@@ -133,6 +134,7 @@ class _IamOffMainState extends State<IamOffMain> {
         stat.isWeekDay = true;
         if (now.minute + now.hour * 60 >= setting.startMinute) {
           // 출근 시간이 지난 경우, 자동으로 출근 시간 체크
+          print("출근 합시다");
           DateTime startDate = DateTime(
             now.year,
             now.month,

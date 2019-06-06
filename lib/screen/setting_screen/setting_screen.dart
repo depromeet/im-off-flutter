@@ -103,8 +103,14 @@ class SettingDone extends StatelessWidget {
                 int gap = startedMinute - setting.startMinute;
 
                 started = started.subtract(Duration(minutes: gap));
+                if (started.millisecondsSinceEpoch >
+                    DateTime.now().millisecondsSinceEpoch) {
+                  // 아직 출근할 시간이 아니다.
+                  print("not to go to work");
+                  started = null;
+                }
                 state.nextState = working.copyWith(
-                  startEpoch: started.millisecondsSinceEpoch,
+                  startEpoch: started?.millisecondsSinceEpoch,
                   setting: setting,
                 )..saveStatus();
               } else {

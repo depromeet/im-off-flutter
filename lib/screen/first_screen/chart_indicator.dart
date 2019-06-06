@@ -1,9 +1,14 @@
+import 'package:easy_stateful_builder/easy_stateful_builder.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:math' as math;
 
 import 'package:im_off/bloc/setting_bloc.dart';
 import 'package:im_off/model/working_status.dart';
+import 'package:im_off/model/constant.dart';
+
+enum WorkingStatusType { rest, working, extraWork, success, failed }
 
 class ChartIndicator extends StatefulWidget {
   ChartIndicator({
@@ -49,6 +54,51 @@ class _ChartIndicatorState extends State<ChartIndicator>
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
     String outlineAsset = 'images/circle_gradation_red.png';
+    Color arcColor;
+    WorkingStatus status =
+        EasyStatefulBuilder.getState(workingStatusKey).currentState;
+    WorkingStatusType workingType;
+
+    if (status?.endEpoch != null) {
+      //퇴근 했다.
+      int gotOffTime = status.endEpoch;
+      DateTime started = DateTime.fromMillisecondsSinceEpoch(status.startEpoch);
+      DateTime expected = DateTime(started.year, started.month, started.day,
+          status.setting.endMinute ~/ 60, status.setting.endMinute % 60);
+      expected = expected.add(Duration(minutes: 15));
+
+      outlineAsset = "images/circle_gradation_blue.png";
+      workingType = WorkingStatusType.success;
+      arcColor = Color(0xff25f2ff);
+
+      if (gotOffTime >= expected.millisecondsSinceEpoch) {
+        // 야근 했다.
+        outlineAsset = 'images/circle_gradation_red.png';
+        workingType = WorkingStatusType.failed;
+        arcColor = Color(0xffff295b);
+      }
+    } else if (status?.startEpoch != null) {
+      // 출근 했다.
+      DateTime started = DateTime.fromMillisecondsSinceEpoch(status.startEpoch);
+      DateTime expected = DateTime(started.year, started.month, started.day,
+          status.setting.endMinute ~/ 60, status.setting.endMinute % 60);
+      expected = expected.add(Duration(minutes: 15));
+      if (now.millisecondsSinceEpoch > expected.millisecondsSinceEpoch) {
+        // 야근 중이다.
+        outlineAsset = 'images/circle_gradation_red.png';
+        workingType = WorkingStatusType.extraWork;
+        arcColor = Color(0xffff295b);
+      } else {
+        outlineAsset = "images/circle_gradation_blue.png";
+        workingType = WorkingStatusType.working;
+        arcColor = Color(0xff25f2ff);
+      }
+    } else {
+      // 출근 안했다.
+      outlineAsset = "images/circle_gradation_gray.png";
+      workingType = WorkingStatusType.rest;
+      arcColor = Colors.transparent;
+    }
     return SizedBox(
       width: 304.0,
       height: 304.0,
@@ -58,7 +108,7 @@ class _ChartIndicatorState extends State<ChartIndicator>
           OutlineAnimator(
             asset: outlineAsset,
           ),
-          ..._buildTimeSector(),
+          ..._buildTimeSector(workingType, arcColor),
           Center(
             child: Text(
               "${now.hour}:${now.minute}",
@@ -76,23 +126,24 @@ class _ChartIndicatorState extends State<ChartIndicator>
     );
   }
 
-  List<Widget> _buildTimeSector() {
+  List<Widget> _buildTimeSector(WorkingStatusType type, Color arcColor) {
     final DateTime date = DateTime.now();
     final int gapMin = Duration(minutes: 201).inMinutes;
     final int startMin = (date.hour * 60 + date.minute) % 720;
     return [
-      CustomPaint(
-        painter: ChartClock(
-          color: CupertinoColors.white,
-          gapMin: gapMin * this._chartSize.value,
-          startMin: startMin,
+      if (type != WorkingStatusType.rest)
+        CustomPaint(
+          painter: ChartClock(
+            color: CupertinoColors.white,
+            gapMin: gapMin * this._chartSize.value,
+            startMin: startMin,
+          ),
         ),
-      ),
       Padding(
         padding: const EdgeInsets.all(12.0),
         child: CustomPaint(
           painter: ChartClock(
-            color: Color(0xff25f2ff),
+            color: arcColor,
             gapMin: gapMin * this._chartSize.value,
             startMin: startMin,
           ),
