@@ -37,7 +37,7 @@ class FirstScreen extends StatelessWidget {
           } else if (status?.startEpoch == null) {
             buttonType = ButtonType.gotoWork;
           } else {
-            print(DateTime.fromMillisecondsSinceEpoch(status.startEpoch));
+            // 일하는 중이다.
           }
 
           return Stack(

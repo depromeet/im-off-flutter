@@ -31,16 +31,33 @@ class SecondScreen extends StatelessWidget {
         physics: ClampingScrollPhysics(),
         children: <Widget>[
           Center(
-            child: OffCard(),
+            child: OffCard(
+              title: "이번주 근무 시간",
+              chartColor: Color(0xff25f2ff),
+              criteria: "/52시간",
+            ),
           ),
           Center(
-            child: OffCard(),
+            child: OffCard(
+              title: "평균 퇴근 시간",
+              chartColor: Color(0xff3a2eff),
+            ),
           ),
           Center(
-            child: OffCard(),
+            child: OffCard(
+              title: "주로 칼퇴하는 요일",
+              chartColor: Color(0xff25f2ff),
+              startMinute: 0,
+              gapMinute: 720,
+            ),
           ),
           Center(
-            child: OffCard(),
+            child: OffCard(
+              title: "주로 야근하는 요일",
+              chartColor: Color(0xffff295b),
+              startMinute: 0,
+              gapMinute: 720,
+            ),
           ),
         ],
       ),

@@ -80,6 +80,11 @@ class _IamOffMainState extends State<IamOffMain> {
     initialPage: 0,
   );
 
+  final List<Widget> screens = [
+    FirstScreen(),
+    SecondScreen(),
+  ];
+
   Timer workingTimer;
 
   @override
@@ -134,7 +139,6 @@ class _IamOffMainState extends State<IamOffMain> {
         stat.isWeekDay = true;
         if (now.minute + now.hour * 60 >= setting.startMinute) {
           // 출근 시간이 지난 경우, 자동으로 출근 시간 체크
-          print("출근 합시다");
           DateTime startDate = DateTime(
             now.year,
             now.month,
@@ -186,10 +190,7 @@ class _IamOffMainState extends State<IamOffMain> {
         physics: ClampingScrollPhysics(),
         scrollDirection: Axis.vertical,
         controller: _pageController,
-        children: <Widget>[
-          FirstScreen(),
-          SecondScreen(),
-        ],
+        children: this.screens,
       ),
     );
   }
@@ -198,7 +199,7 @@ class _IamOffMainState extends State<IamOffMain> {
     _pageController.animateToPage(
       idx,
       duration: Duration(milliseconds: 500),
-      curve: Curves.easeIn,
+      curve: Curves.decelerate,
     );
   }
 }

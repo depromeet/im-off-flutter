@@ -7,7 +7,7 @@ class OffCard extends StatelessWidget {
   OffCard({
     this.title = "이번주 근무 시간",
     this.statistic = "34시간",
-    this.criteria = "/52시간",
+    this.criteria,
     this.gapMinute,
     this.startMinute,
     this.chartTitle,
@@ -90,16 +90,20 @@ class OffCard extends StatelessWidget {
                 ),
               ],
             ),
-            CustomPaint(
-              painter: ChartClock(
-                color: this.chartColor,
-                startMin: 0,
-                gapMin: 100,
-              ),
-              child: Container(
-                width: 64.0,
-                height: 64.0,
-              ),
+            Stack(
+              children: <Widget>[
+                CustomPaint(
+                  painter: ChartClock(
+                    color: this.chartColor,
+                    startMin: this.startMinute ?? 0,
+                    gapMin: this.gapMinute?.toDouble() ?? 100,
+                  ),
+                  child: Container(
+                    width: 64.0,
+                    height: 64.0,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
