@@ -149,9 +149,13 @@ class _IamOffMainState extends State<IamOffMain> {
       }
     }
     stat.saveStatus();
-    EasyStatefulBuilder.setState(workingStatusKey, (state) {
-      state.nextState = stat;
-    });
+    try {
+      EasyStatefulBuilder.setState(workingStatusKey, (state) {
+        state.nextState = stat;
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override

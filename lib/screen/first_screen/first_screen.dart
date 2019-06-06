@@ -29,6 +29,7 @@ class FirstScreen extends StatelessWidget {
       ),
       child: EasyStatefulBuilder(
         identifier: workingStatusKey,
+        keepAlive: true,
         builder: (context, WorkingStatus status) {
           ButtonType buttonType = ButtonType.getOff;
           if (status?.endEpoch != null && status?.startEpoch != null) {
