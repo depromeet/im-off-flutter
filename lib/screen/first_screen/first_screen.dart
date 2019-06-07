@@ -5,6 +5,7 @@ import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:im_off/model/constant.dart';
+import 'package:im_off/service/off_notification.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_stateful_builder/easy_stateful_builder.dart';
 
@@ -136,6 +137,7 @@ class BlueButton extends StatelessWidget {
       status.finish();
       state.nextState = status;
     });
+    canclePeriodicNotifications();
   }
 
   void _share(BuildContext context) async {

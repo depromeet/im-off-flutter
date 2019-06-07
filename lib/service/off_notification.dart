@@ -26,9 +26,7 @@ void initFlutterLocalNotifications(SelectNotificationCallback callback) async {
   flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
     onSelectNotification: (String payload) async {
-      for (int i = 0; i < periodicNotificationRepeat; i++) {
-        flutterLocalNotificationsPlugin.cancel(periodicNotificationId + i);
-      }
+      // TODO: 로컬 노티 눌렀을 때 반응 할 것.
     },
   );
 }
@@ -104,4 +102,10 @@ Future registerPeriodicNotification(Time notiTime, int everyMinute) async {
 
 Future cancleAllNotifications() async {
   flutterLocalNotificationsPlugin.cancelAll();
+}
+
+Future canclePeriodicNotifications() async {
+  for (int i = 0; i < periodicNotificationRepeat; i++) {
+    flutterLocalNotificationsPlugin.cancel(periodicNotificationId + i);
+  }
 }
