@@ -55,11 +55,12 @@ class FirstScreen extends StatelessWidget {
                 left: -28.0,
                 child: ChartIndicator(status: status),
               ),
-              Positioned(
-                bottom: 113.0,
-                left: 220.0,
-                child: BlueButton(type: buttonType),
-              ),
+              if (status.isWeekDay)
+                Positioned(
+                  bottom: 113.0,
+                  left: 220.0,
+                  child: BlueButton(type: buttonType),
+                ),
             ],
           );
         },
