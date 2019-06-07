@@ -23,6 +23,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   esys_flutter_share: ^1.0.2
+  flutter_local_notifications: ^0.7.1+1
 
   screenshot: ^0.1.1
   provider: any

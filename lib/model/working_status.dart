@@ -30,8 +30,8 @@ class WorkingStatus {
       WorkingStatus(
         isWeekDay: isWeekDay ?? this.isWeekDay,
         setting: setting ?? this.setting,
-        startEpoch: startEpoch,
-        endEpoch: endEpoch,
+        startEpoch: startEpoch ?? this.startEpoch,
+        endEpoch: endEpoch ?? this.endEpoch,
       );
 
   WorkingStatus.fromJson(Map<String, dynamic> json)

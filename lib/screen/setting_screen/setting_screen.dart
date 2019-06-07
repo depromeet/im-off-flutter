@@ -1,6 +1,7 @@
 import 'package:easy_stateful_builder/easy_stateful_builder.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:im_off/bloc/setting_bloc.dart';
 import 'package:im_off/model/jobs.dart';
 import 'package:im_off/model/times.dart';
@@ -9,6 +10,7 @@ import 'package:im_off/model/working_status.dart';
 import 'package:im_off/screen/setting_screen/common.dart';
 import 'package:im_off/screen/setting_screen/custom_picker.dart';
 import 'package:im_off/screen/setting_screen/notification_switch.dart';
+import 'package:im_off/service/off_notification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../model/constant.dart';
@@ -92,35 +94,38 @@ class SettingDone extends StatelessWidget {
               ModalRoute.of(context).settings.arguments as bool;
           if (isAppLoded) {
             // 유저 출퇴근 state가 변경 되어야 함.
+            // TODO: 퇴근 시간만 변경 해야함 - 이미 출근 햇으면 출근이니까
             EasyStatefulBuilder.setState(workingStatusKey, (state) {
               WorkingStatus working = state.currentState;
-              if (working.startEpoch != null) {
-                // 시작 시간을 변경해야 한다.
-                DateTime started =
-                    DateTime.fromMillisecondsSinceEpoch(working.startEpoch);
+              // if (working.startEpoch != null) {
+              //   // 시작 시간을 변경해야 한다.
+              //   DateTime started =
+              //       DateTime.fromMillisecondsSinceEpoch(working.startEpoch);
 
-                int startedMinute = started.hour * 60 + started.minute;
-                int gap = startedMinute - setting.startMinute;
+              //   int startedMinute = started.hour * 60 + started.minute;
+              //   int gap = startedMinute - setting.startMinute;
 
-                started = started.subtract(Duration(minutes: gap));
-                // if (started.millisecondsSinceEpoch >
-                //         DateTime.now().millisecondsSinceEpoch &&
-                //     working.endEpoch == null) {
-                //   // 아직 출근할 시간이 아니다.
-                //   started = null;
-                // }
-                state.nextState = working.copyWith(
-                  startEpoch: started?.millisecondsSinceEpoch,
-                  endEpoch: working.endEpoch,
-                  setting: setting,
-                )..saveStatus();
-              } else {
-                state.nextState = working.copyWith(
-                  setting: setting,
-                );
-              }
+              //   started = started.subtract(Duration(minutes: gap));
+              //   // if (started.millisecondsSinceEpoch >
+              //   //         DateTime.now().millisecondsSinceEpoch &&
+              //   //     working.endEpoch == null) {
+              //   //   // 아직 출근할 시간이 아니다.
+              //   //   started = null;
+              //   // }
+              //   state.nextState = working.copyWith(
+              //     endEpoch: working.endEpoch,
+              //     setting: setting,
+              //   )..saveStatus();
+              // } else {
+              state.nextState = working.copyWith(
+                setting: setting,
+              )..saveStatus();
+              // }
             });
           }
+          Time notiTime = Time(setting.endMinute ~/ 60, setting.endMinute % 60);
+          registerDailyNotification(notiTime);
+          registerPeriodicNotification(notiTime, 1);
           Navigator.of(context).pop();
         }
       },

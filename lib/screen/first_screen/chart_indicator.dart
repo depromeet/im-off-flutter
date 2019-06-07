@@ -97,7 +97,7 @@ class _ChartIndicatorState extends State<ChartIndicator>
           status.setting.endMinute ~/ 60, status.setting.endMinute % 60);
       // expected = expected.add(Duration(minutes: 15));
       startMinutes = started.minute + started.hour * 60;
-      gapMinutes = DateTime.now().difference(started).inMinutes;
+      gapMinutes = now.difference(started).inMinutes;
       clockTimer = "";
       int clockHour = gapMinutes ~/ 60;
       int clockMinute = gapMinutes % 60;
@@ -106,7 +106,6 @@ class _ChartIndicatorState extends State<ChartIndicator>
         // 야근 중이다.
         startMinutes = expected.hour * 60 + expected.minute;
         gapMinutes = DateTime.now().difference(expected).inMinutes;
-        print("gap: $gapMinutes");
         outlineAsset = 'images/circle_gradation_red.png';
         workingType = WorkingStatusType.extraWork;
         arcColor = Color(0xffff295b);

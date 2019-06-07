@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:im_off/model/working_status.dart';
+import 'package:im_off/service/off_notification.dart';
 import 'package:provider/provider.dart';
 
 import 'package:im_off/screen/screen.dart';
@@ -22,6 +23,7 @@ import 'model/user_setting.dart';
 
 void main() {
 //  timeDilation = 2.0;
+  initFlutterLocalNotifications(null);
   runApp(IamOff());
 }
 
