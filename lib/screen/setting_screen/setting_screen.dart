@@ -127,7 +127,7 @@ class SettingDone extends StatelessWidget {
             Time notiTime =
                 Time(setting.endMinute ~/ 60, setting.endMinute % 60);
             registerDailyNotification(notiTime);
-            registerPeriodicNotification(notiTime, 30);
+            // registerPeriodicNotification(notiTime, 30);
           } else {
             cancleAllNotifications();
           }

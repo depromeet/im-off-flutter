@@ -38,11 +38,13 @@ class IamOff extends StatelessWidget {
       ],
       child: CupertinoApp(
         title: 'Flutter Demo',
-        initialRoute: IamOffRoute.splashScreen,
+        // initialRoute: IamOffRoute.splashScreen,
+        home: SplashScreen(),
         onGenerateRoute: (RouteSettings route) {
           switch (route.name) {
             case IamOffRoute.home:
               return CupertinoPageRoute(
+                fullscreenDialog: true,
                 builder: (context) {
                   return IamOffMain();
                 },
