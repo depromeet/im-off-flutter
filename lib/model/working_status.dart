@@ -151,14 +151,18 @@ Future<int> _getFastOffWeekday(
     List<WorkingStatus> history, UserSetting setting) async {
   List<int> totalMinutes = List.generate(10, (i) => 0);
   List<int> workCount = List.generate(10, (i) => 0);
+  Duration expectedWorkingHours =
+      Duration(minutes: (setting.endMinute - setting.startMinute + 15));
 
   for (WorkingStatus status in history) {
     DateTime start = DateTime.fromMillisecondsSinceEpoch(status.startEpoch);
     DateTime end = DateTime.fromMillisecondsSinceEpoch(status.endEpoch);
     Duration gap = end.difference(start);
 
-    totalMinutes[start.weekday] += gap.inMinutes;
-    workCount[start.weekday]++;
+    if (expectedWorkingHours >= gap) {
+      totalMinutes[start.weekday] += gap.inMinutes;
+      workCount[start.weekday]++;
+    }
   }
   int minTime = 0x7fffffff;
   int minWeek = 0;
@@ -178,14 +182,18 @@ Future<int> _getExtraWorkingWeekday(
     List<WorkingStatus> history, UserSetting setting) async {
   List<int> totalMinutes = List.generate(10, (i) => 0);
   List<int> workCount = List.generate(10, (i) => 0);
+  Duration expectedWorkingHours =
+      Duration(minutes: (setting.endMinute - setting.startMinute));
 
   for (WorkingStatus status in history) {
     DateTime start = DateTime.fromMillisecondsSinceEpoch(status.startEpoch);
     DateTime end = DateTime.fromMillisecondsSinceEpoch(status.endEpoch);
     Duration gap = end.difference(start);
 
-    totalMinutes[start.weekday] += gap.inMinutes;
-    workCount[start.weekday]++;
+    if (expectedWorkingHours < gap) {
+      totalMinutes[start.weekday] += gap.inMinutes;
+      workCount[start.weekday]++;
+    }
   }
   int maxTime = 0;
   int maxWeek = 0;
