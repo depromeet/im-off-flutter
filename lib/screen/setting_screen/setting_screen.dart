@@ -123,9 +123,14 @@ class SettingDone extends StatelessWidget {
               // }
             });
           }
-          Time notiTime = Time(setting.endMinute ~/ 60, setting.endMinute % 60);
-          registerDailyNotification(notiTime);
-          registerPeriodicNotification(notiTime, 1);
+          if (setting.isAlarmSet ?? false) {
+            Time notiTime =
+                Time(setting.endMinute ~/ 60, setting.endMinute % 60);
+            registerDailyNotification(notiTime);
+            registerPeriodicNotification(notiTime, 30);
+          } else {
+            cancleAllNotifications();
+          }
           Navigator.of(context).pop();
         }
       },

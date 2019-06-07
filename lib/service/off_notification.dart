@@ -101,3 +101,7 @@ Future registerPeriodicNotification(Time notiTime, int everyMinute) async {
     );
   }
 }
+
+Future cancleAllNotifications() async {
+  flutterLocalNotificationsPlugin.cancelAll();
+}
