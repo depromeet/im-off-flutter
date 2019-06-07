@@ -106,9 +106,16 @@ class TextIndicator extends StatelessWidget {
             text = stringTime + " 퇴근";
           }
         }
-      } else {
+      } else if (status.isWeekDay) {
         // 아직 출근 안했다.
         text = "출근 준비!";
+      }
+      if (!status.isWeekDay) {
+        if (now.weekday == DateTime.saturday) {
+          text = "내일도 쉬는날!";
+        } else {
+          text = "내일은 월요일...";
+        }
       }
     }
 
